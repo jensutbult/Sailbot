@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="5056" systemVersion="13C1021" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="vXZ-lx-hvc">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3733"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="ufC-wZ-h7g">
+            <objects>
+                <viewController id="vXZ-lx-hvc" customClass="SBTViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="jyV-Pf-zRb"/>
+                        <viewControllerLayoutGuide type="bottom" id="2fi-mo-0CV"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="kh9-bI-dsS">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="yhG-h3-dby">
+                                <rect key="frame" x="0.0" y="124" width="320" height="320"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <subviews>
+                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="compass-rose" translatesAutoresizingMaskIntoConstraints="NO" id="Vd2-Y7-l9Y">
+                                        <rect key="frame" x="10" y="10" width="300" height="300"/>
+                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    </imageView>
+                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="boat" translatesAutoresizingMaskIntoConstraints="NO" id="qGe-k7-qqn">
+                                        <rect key="frame" x="85" y="135" width="150" height="50"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                    </imageView>
+                                </subviews>
+                                <color key="backgroundColor" white="1" alpha="0.0" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="320" id="Nlc-MY-5CV"/>
+                                    <constraint firstAttribute="centerY" secondItem="qGe-k7-qqn" secondAttribute="centerY" id="b0t-iE-a3v"/>
+                                    <constraint firstAttribute="centerX" secondItem="qGe-k7-qqn" secondAttribute="centerX" id="k1Q-Wr-igU"/>
+                                    <constraint firstAttribute="height" constant="320" id="uSq-fs-ZcO"/>
+                                </constraints>
+                            </view>
+                            <imageView contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="heading" translatesAutoresizingMaskIntoConstraints="NO" id="x50-TP-khQ">
+                                <rect key="frame" x="0.0" y="264" width="40" height="40"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </imageView>
+                        </subviews>
+                        <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                        <constraints>
+                            <constraint firstAttribute="centerX" secondItem="x50-TP-khQ" secondAttribute="centerX" constant="140" id="Itr-j6-wsV"/>
+                            <constraint firstAttribute="centerY" secondItem="yhG-h3-dby" secondAttribute="centerY" id="WE9-VU-BeY"/>
+                            <constraint firstAttribute="centerX" secondItem="yhG-h3-dby" secondAttribute="centerX" id="mAW-Kb-z5m"/>
+                            <constraint firstAttribute="centerY" secondItem="x50-TP-khQ" secondAttribute="centerY" id="tMX-SI-X3y"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="_boatImageView" destination="qGe-k7-qqn" id="DqX-yV-iPe"/>
+                        <outlet property="_compassView" destination="yhG-h3-dby" id="Qrw-C6-E37"/>
+                        <outlet property="_headingHorizontalConstraint" destination="Itr-j6-wsV" id="dik-tj-Nlm"/>
+                        <outlet property="_headingImageView" destination="x50-TP-khQ" id="DyX-mn-iAC"/>
+                        <outlet property="_headingVerticalConstraint" destination="tMX-SI-X3y" id="njO-NA-nRP"/>
+                        <outlet property="boatImageView" destination="qGe-k7-qqn" id="auS-xQ-LAs"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
+            </objects>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="boat" width="150" height="50"/>
+        <image name="compass-rose" width="300" height="300"/>
+        <image name="heading" width="40" height="40"/>
+    </resources>
+    <simulatedMetricsContainer key="defaultSimulatedMetrics">
+        <simulatedStatusBarMetrics key="statusBar"/>
+        <simulatedOrientationMetrics key="orientation"/>
+        <simulatedScreenMetrics key="destination" type="retina4"/>
+    </simulatedMetricsContainer>
+</document>
