@@ -28,6 +28,7 @@
     __weak IBOutlet NSLayoutConstraint *_headingHorizontalConstraint;
     __weak IBOutlet NSLayoutConstraint *_headingVerticalConstraint;
     __weak IBOutlet UIImageView *_sheetControlImageView;
+    __weak IBOutlet NSLayoutConstraint *_sheetControlConstraint;
     __weak IBOutlet UIImageView *_sheetScaleImageView;
     __weak IBOutlet UIImageView *_tillerImageView;
     CGFloat _compassViewSize;
@@ -60,6 +61,10 @@
     SBTOneFingerRotationGestureRecognizer *rotationGesture = [[SBTOneFingerRotationGestureRecognizer alloc] initWithTarget:self action:@selector(_rotateHeading:)];
     [_headingImageView addGestureRecognizer:rotationGesture];
     
+    UIPanGestureRecognizer *sheetControlGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(_manualSheet:)];
+    sheetControlGesture.maximumNumberOfTouches = 1;
+    [_sheetControlImageView addGestureRecognizer:sheetControlGesture];
+    
     _boatImageView.layer.anchorPoint = CGPointMake(0.5, 0.5);
 }
 
@@ -73,6 +78,16 @@
     [SBTSailbotModel shared].selectedHeading = _heading;
     _headingVerticalConstraint.constant = sinf(_heading + _compassHeading) * _headingOffset;
     _headingHorizontalConstraint.constant = cosf(_heading + _compassHeading) * _headingOffset;
+}
+
+- (void)_manualSheet:(UIPanGestureRecognizer *)panGesture {
+    CGFloat position = -([panGesture locationInView:self.view].y - self.view.width/2) / 110.0; // - self.view.height/2) ;/// 110.0;
+    position = position > 1 ? 1 : position;
+    position = position < -1 ? -1 : position;
+    
+    [SBTSailbotModel shared].manualSheetControl = position;
+    _sheetControlConstraint.constant = position * 110;;
+    
 }
 
 - (void)didReceiveMemoryWarning {

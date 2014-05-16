@@ -31,5 +31,6 @@ typedef void (^HeadingUpdateBlock)(CGFloat heading);
 
 @property (nonatomic, copy) HeadingUpdateBlock headingUpdateBlock;
 @property (nonatomic, assign) float selectedHeading;
+@property (nonatomic, assign) float manualSheetControl;
 
 @end
