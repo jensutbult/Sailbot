@@ -8,10 +8,16 @@
 
 #import "SBTCompassModel.h"
 
+#define LENGTH 10
+
 @implementation SBTCompassModel {
     CLLocationManager *_locationManager;
     CGFloat _lastHeading;
     HeadingUpdateBlock _headingUpdateBlock;
+    CGFloat _headings[LENGTH];
+    int _position;
+    int _size;
+    CGPoint _vector;
 }
 
 - (id)initWithHeadingUpdateBlock:(HeadingUpdateBlock)block {
@@ -27,16 +33,42 @@
     return self;
 }
 
+
+- (void)_add:(CGFloat)heading {
+    if (_size < LENGTH) {
+        _size++;
+    }
+    
+    if (_position < LENGTH - 1) {
+        _position++;
+    } else {
+        _position = 0;
+    }
+    
+    _vector.x += cosf(heading);
+    _vector.y += sinf(heading);
+    
+    if (_size == LENGTH) {
+        CGFloat oldHeading = _headings[_position];
+        _vector.x -= cosf(oldHeading);
+        _vector.y -= sinf(oldHeading);
+    }
+    
+    _headings[_position] = heading;
+}
+
+
+- (CGFloat)filteredAverage {
+    return atan2f(_vector.x / _size, _vector.y / _size);
+}
+
 - (void)locationManager:(CLLocationManager *)manager didUpdateHeading:(CLHeading *)newHeading {
-    // simple low pass filter
-	CGFloat alpha = 0.1;
-    CGFloat currentHeading = newHeading.trueHeading * M_PI / 180.0;
-	if (_lastHeading < 0.5 * M_PI && currentHeading > 1.5 * M_PI) {
-		_lastHeading = currentHeading * alpha + (2.0 * M_PI + _lastHeading) * (1 - alpha) - 2.0 * M_PI;
-	} else {
-		_lastHeading = currentHeading * alpha + _lastHeading * (1 - alpha);
-	}
-    _headingUpdateBlock(_lastHeading);
+    if (newHeading.trueHeading < 0)
+        return;
+    
+    [self _add:newHeading.trueHeading * M_PI / 180.0];
+    
+    _headingUpdateBlock([self filteredAverage]);
 }
 
 - (BOOL)locationManagerShouldDisplayHeadingCalibration:(CLLocationManager *)manager {

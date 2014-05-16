@@ -14,5 +14,6 @@ typedef void (^HeadingUpdateBlock)(CGFloat heading);
 @interface SBTCompassModel : NSObject <CLLocationManagerDelegate>
 
 - (id)initWithHeadingUpdateBlock:(HeadingUpdateBlock)block;
+- (CGFloat)filteredAverage;
 
 @end
