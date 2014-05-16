@@ -2,6 +2,7 @@
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="5056" systemVersion="13C1021" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="vXZ-lx-hvc">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3733"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
     </dependencies>
     <scenes>
         <!--View Controller-->
@@ -20,20 +21,28 @@
                                 <rect key="frame" x="0.0" y="124" width="320" height="320"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <subviews>
-                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="compass-rose" translatesAutoresizingMaskIntoConstraints="NO" id="Vd2-Y7-l9Y">
+                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="compass-rose" translatesAutoresizingMaskIntoConstraints="NO" id="Vd2-Y7-l9Y">
                                         <rect key="frame" x="10" y="10" width="300" height="300"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     </imageView>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="boat" translatesAutoresizingMaskIntoConstraints="NO" id="qGe-k7-qqn">
                                         <rect key="frame" x="85" y="135" width="150" height="50"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" secondItem="qGe-k7-qqn" secondAttribute="height" multiplier="3:1" id="ZRs-Qa-jOr"/>
+                                        </constraints>
                                     </imageView>
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="0.0" colorSpace="custom" customColorSpace="calibratedWhite"/>
                                 <constraints>
+                                    <constraint firstAttribute="trailing" secondItem="qGe-k7-qqn" secondAttribute="trailing" constant="85" id="AZf-OP-cre"/>
+                                    <constraint firstAttribute="centerY" secondItem="qGe-k7-qqn" secondAttribute="centerY" id="FOM-YK-YLk"/>
+                                    <constraint firstAttribute="trailing" secondItem="Vd2-Y7-l9Y" secondAttribute="trailing" constant="10" id="G55-Ld-Asx"/>
                                     <constraint firstAttribute="width" constant="320" id="Nlc-MY-5CV"/>
-                                    <constraint firstAttribute="centerY" secondItem="qGe-k7-qqn" secondAttribute="centerY" id="b0t-iE-a3v"/>
-                                    <constraint firstAttribute="centerX" secondItem="qGe-k7-qqn" secondAttribute="centerX" id="k1Q-Wr-igU"/>
+                                    <constraint firstItem="Vd2-Y7-l9Y" firstAttribute="top" secondItem="yhG-h3-dby" secondAttribute="top" constant="10" id="Ykq-S4-hpA"/>
+                                    <constraint firstAttribute="bottom" secondItem="Vd2-Y7-l9Y" secondAttribute="bottom" constant="10" id="ZB1-Or-1Qc"/>
+                                    <constraint firstItem="Vd2-Y7-l9Y" firstAttribute="leading" secondItem="yhG-h3-dby" secondAttribute="leading" constant="10" id="e3U-dg-fFg"/>
+                                    <constraint firstItem="qGe-k7-qqn" firstAttribute="leading" secondItem="yhG-h3-dby" secondAttribute="leading" constant="85" id="inp-0l-OEO"/>
                                     <constraint firstAttribute="height" constant="320" id="uSq-fs-ZcO"/>
                                 </constraints>
                             </view>
@@ -52,9 +61,11 @@
                     </view>
                     <connections>
                         <outlet property="_boatImageView" destination="qGe-k7-qqn" id="DqX-yV-iPe"/>
+                        <outlet property="_compassHeightConstraint" destination="uSq-fs-ZcO" id="GEv-oG-8KS"/>
                         <outlet property="_compassView" destination="yhG-h3-dby" id="Qrw-C6-E37"/>
+                        <outlet property="_compassWidthConstraint" destination="Nlc-MY-5CV" id="G57-db-IrZ"/>
                         <outlet property="_headingHorizontalConstraint" destination="Itr-j6-wsV" id="dik-tj-Nlm"/>
-                        <outlet property="_headingImageView" destination="x50-TP-khQ" id="DyX-mn-iAC"/>
+                        <outlet property="_headingImageView" destination="x50-TP-khQ" id="vmh-xo-NDq"/>
                         <outlet property="_headingVerticalConstraint" destination="tMX-SI-X3y" id="njO-NA-nRP"/>
                         <outlet property="boatImageView" destination="qGe-k7-qqn" id="auS-xQ-LAs"/>
                     </connections>

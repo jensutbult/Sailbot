@@ -31,6 +31,7 @@
 		B46A0990191ECD5900711D4D /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B46A098F191ECD5900711D4D /* CoreLocation.framework */; };
 		B46A0994191ED4D800711D4D /* SBTCompassModel.m in Sources */ = {isa = PBXBuildFile; fileRef = B46A0993191ED4D800711D4D /* SBTCompassModel.m */; };
 		B46A09971922D22100711D4D /* SBTOneFingerRotationGestureRecognizer.m in Sources */ = {isa = PBXBuildFile; fileRef = B46A09961922D22100711D4D /* SBTOneFingerRotationGestureRecognizer.m */; };
+		B4D93D891925F5C5004F2F60 /* UIView+SBTShortcuts.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D93D881925F5C5004F2F60 /* UIView+SBTShortcuts.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -82,6 +83,8 @@
 		B46A0993191ED4D800711D4D /* SBTCompassModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBTCompassModel.m; sourceTree = "<group>"; };
 		B46A09951922D22100711D4D /* SBTOneFingerRotationGestureRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBTOneFingerRotationGestureRecognizer.h; sourceTree = "<group>"; };
 		B46A09961922D22100711D4D /* SBTOneFingerRotationGestureRecognizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBTOneFingerRotationGestureRecognizer.m; sourceTree = "<group>"; };
+		B4D93D871925F5C5004F2F60 /* UIView+SBTShortcuts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+SBTShortcuts.h"; sourceTree = "<group>"; };
+		B4D93D881925F5C5004F2F60 /* UIView+SBTShortcuts.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+SBTShortcuts.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -163,6 +166,8 @@
 				B46A0993191ED4D800711D4D /* SBTCompassModel.m */,
 				B46A09951922D22100711D4D /* SBTOneFingerRotationGestureRecognizer.h */,
 				B46A09961922D22100711D4D /* SBTOneFingerRotationGestureRecognizer.m */,
+				B4D93D871925F5C5004F2F60 /* UIView+SBTShortcuts.h */,
+				B4D93D881925F5C5004F2F60 /* UIView+SBTShortcuts.m */,
 				B46A094C191D81F400711D4D /* Images.xcassets */,
 				B46A0938191D81F400711D4D /* Supporting Files */,
 			);
@@ -327,6 +332,7 @@
 				B46A09971922D22100711D4D /* SBTOneFingerRotationGestureRecognizer.m in Sources */,
 				B46A098E191EB67C00711D4D /* SBTSailbotModel.m in Sources */,
 				B46A0983191D842D00711D4D /* RFduino.m in Sources */,
+				B4D93D891925F5C5004F2F60 /* UIView+SBTShortcuts.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -541,6 +547,7 @@
 				B46A0965191D81F400711D4D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		B46A0966191D81F400711D4D /* Build configuration list for PBXNativeTarget "SailbotTests" */ = {
 			isa = XCConfigurationList;
@@ -549,6 +556,7 @@
 				B46A0968191D81F400711D4D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

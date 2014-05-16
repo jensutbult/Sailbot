@@ -10,6 +10,7 @@
 #import "SBTSailbotModel.h"
 #import "SBTCompassModel.h"
 #import "SBTOneFingerRotationGestureRecognizer.h"
+#import "UIView+SBTShortcuts.h"
 
 @interface SBTViewController ()
 
@@ -22,8 +23,11 @@
     SBTCompassModel *_compass;
     __weak IBOutlet UIImageView *_headingImageView;
     __weak IBOutlet UIView *_compassView;
+    __weak IBOutlet NSLayoutConstraint *_compassWidthConstraint;
+    __weak IBOutlet NSLayoutConstraint *_compassHeightConstraint;
     __weak IBOutlet NSLayoutConstraint *_headingHorizontalConstraint;
     __weak IBOutlet NSLayoutConstraint *_headingVerticalConstraint;
+    CGFloat _compassViewSize;
     CGFloat _headingOffset;
     CGFloat _heading;
     CGFloat _compassHeading;
@@ -47,8 +51,12 @@
     };
     
     _headingOffset = _headingHorizontalConstraint.constant;
+    _compassViewSize = _compassHeightConstraint.constant;
+    
     SBTOneFingerRotationGestureRecognizer *rotationGesture = [[SBTOneFingerRotationGestureRecognizer alloc] initWithTarget:self action:@selector(_rotateHeading:)];
     [_headingImageView addGestureRecognizer:rotationGesture];
+    
+    _boatImageView.layer.anchorPoint = CGPointMake(0.5, 0.5);
 }
 
 - (void)_rotateHeading:(SBTOneFingerRotationGestureRecognizer *)rotationGesture {
@@ -76,5 +84,31 @@
     [self setNeedsStatusBarAppearanceUpdate];
 }
 
+
+- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
+    if (fromInterfaceOrientation == UIDeviceOrientationPortrait) {
+        [UIView animateWithDuration:0.3 animations:^{
+            _headingImageView.alpha = 0;
+        } completion:^(BOOL finished) {
+            [UIView animateWithDuration:0.3 animations:^{
+                _compassHeightConstraint.constant = 250;
+                _compassWidthConstraint.constant = 250;
+                [_compassView setNeedsUpdateConstraints];
+                [_compassView layoutIfNeeded];
+            }];
+        }];
+    } else {
+        [UIView animateWithDuration:0.3 animations:^{
+            _compassHeightConstraint.constant = _compassViewSize;
+            _compassWidthConstraint.constant = _compassViewSize;
+            [_compassView setNeedsUpdateConstraints];
+            [_compassView layoutIfNeeded];
+        } completion:^(BOOL finished) {
+            [UIView animateWithDuration:0.3 animations:^{
+                _headingImageView.alpha = 1;
+            }];
+        }];
+    }
+}
 
 @end
