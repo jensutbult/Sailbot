@@ -31,6 +31,7 @@
     CGFloat _headingOffset;
     CGFloat _heading;
     CGFloat _compassHeading;
+    CGFloat _compassCompensation;
 }
 
 - (void)viewDidLoad {
@@ -38,7 +39,7 @@
     _compass = [[SBTCompassModel alloc] initWithHeadingUpdateBlock:^(CGFloat heading) {
         [UIView animateWithDuration:0.3 animations:^{
             _compassHeading = heading;
-            _compassView.transform = CGAffineTransformMakeRotation(-heading);
+            _compassView.transform = CGAffineTransformMakeRotation([self _compensatedCompass]);
             [self _rotateHeading:nil];
         }];
     }];
@@ -61,10 +62,14 @@
 
 - (void)_rotateHeading:(SBTOneFingerRotationGestureRecognizer *)rotationGesture {
     _heading += rotationGesture ? rotationGesture.rotation : 0;
+    if (_heading < 0)
+        _heading += 2 * M_PI;
+    if (_heading > 2 * M_PI)
+        _heading -= 2 * M_PI;
+    
     [SBTSailbotModel shared].selectedHeading = _heading;
-    NSLog(@"Current heading: %f", _heading * 180 / M_PI);
-    _headingVerticalConstraint.constant = sinf(_heading - _compassHeading) * _headingOffset;
-    _headingHorizontalConstraint.constant = cosf(_heading - _compassHeading) * _headingOffset;
+    _headingVerticalConstraint.constant = sinf(_heading + _compassHeading) * _headingOffset;
+    _headingHorizontalConstraint.constant = cosf(_heading + _compassHeading) * _headingOffset;
 }
 
 - (void)didReceiveMemoryWarning {
@@ -81,6 +86,12 @@
 }
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
+    if (toInterfaceOrientation == UIDeviceOrientationPortrait) {
+        _compassCompensation = 0;
+    } else {
+        _compassCompensation = -M_PI / 2.0;
+    }
+    
     [self setNeedsStatusBarAppearanceUpdate];
 }
 
@@ -109,6 +120,15 @@
             }];
         }];
     }
+}
+
+- (CGFloat)_compensatedCompass {
+    CGFloat heading = _compassHeading + _compassCompensation;
+    if (heading < 0)
+        heading += 2 * M_PI;
+    if (heading > 2 * M_PI)
+        heading -= 2 * M_PI;
+    return heading;
 }
 
 @end
