@@ -88,8 +88,10 @@
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
     if (toInterfaceOrientation == UIDeviceOrientationPortrait) {
         _compassCompensation = 0;
-    } else {
+    } else if (toInterfaceOrientation == UIDeviceOrientationLandscapeLeft) {
         _compassCompensation = -M_PI / 2.0;
+    } else {
+        _compassCompensation = M_PI / 2.0;
     }
     
     [self setNeedsStatusBarAppearanceUpdate];
