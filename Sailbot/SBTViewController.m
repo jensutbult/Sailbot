@@ -27,6 +27,9 @@
     __weak IBOutlet NSLayoutConstraint *_compassHeightConstraint;
     __weak IBOutlet NSLayoutConstraint *_headingHorizontalConstraint;
     __weak IBOutlet NSLayoutConstraint *_headingVerticalConstraint;
+    __weak IBOutlet UIImageView *_sheetControlImageView;
+    __weak IBOutlet UIImageView *_sheetScaleImageView;
+    __weak IBOutlet UIImageView *_tillerImageView;
     CGFloat _compassViewSize;
     CGFloat _headingOffset;
     CGFloat _heading;
@@ -100,6 +103,7 @@
 
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
     if (fromInterfaceOrientation == UIDeviceOrientationPortrait) {
+        // Switch to landscape mode (manual control)
         [UIView animateWithDuration:0.3 animations:^{
             _headingImageView.alpha = 0;
         } completion:^(BOOL finished) {
@@ -108,17 +112,30 @@
                 _compassWidthConstraint.constant = 250;
                 [_compassView setNeedsUpdateConstraints];
                 [_compassView layoutIfNeeded];
+            } completion:^(BOOL finished) {
+                [UIView animateWithDuration:0.3 animations:^{
+                    _tillerImageView.alpha = 1;
+                    _sheetScaleImageView.alpha = 1;
+                    _sheetControlImageView.alpha = 1;
+                }];
             }];
         }];
     } else {
+        // Switch to portrait mode (automatic)
         [UIView animateWithDuration:0.3 animations:^{
-            _compassHeightConstraint.constant = _compassViewSize;
-            _compassWidthConstraint.constant = _compassViewSize;
-            [_compassView setNeedsUpdateConstraints];
-            [_compassView layoutIfNeeded];
+            _tillerImageView.alpha = 0;
+            _sheetScaleImageView.alpha = 0;
+            _sheetControlImageView.alpha = 0;
         } completion:^(BOOL finished) {
             [UIView animateWithDuration:0.3 animations:^{
-                _headingImageView.alpha = 1;
+                _compassHeightConstraint.constant = _compassViewSize;
+                _compassWidthConstraint.constant = _compassViewSize;
+                [_compassView setNeedsUpdateConstraints];
+                [_compassView layoutIfNeeded];
+            } completion:^(BOOL finished) {
+                [UIView animateWithDuration:0.3 animations:^{
+                    _headingImageView.alpha = 1;
+                }];
             }];
         }];
     }

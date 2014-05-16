@@ -50,13 +50,31 @@
                                 <rect key="frame" x="0.0" y="264" width="40" height="40"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </imageView>
+                            <imageView userInteractionEnabled="NO" alpha="0.0" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="sheet-control" translatesAutoresizingMaskIntoConstraints="NO" id="iA2-b4-QQA">
+                                <rect key="frame" x="-81" y="271" width="92" height="27"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </imageView>
+                            <imageView userInteractionEnabled="NO" alpha="0.0" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="sheet-scale" translatesAutoresizingMaskIntoConstraints="NO" id="Awh-vc-dNp">
+                                <rect key="frame" x="-48" y="165" width="26" height="239"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </imageView>
+                            <imageView userInteractionEnabled="NO" alpha="0.0" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="tiller" translatesAutoresizingMaskIntoConstraints="NO" id="h5X-Hk-elW">
+                                <rect key="frame" x="315" y="165" width="31" height="239"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </imageView>
                         </subviews>
                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
+                            <constraint firstAttribute="centerY" secondItem="h5X-Hk-elW" secondAttribute="centerY" id="Hcu-uy-lG6"/>
                             <constraint firstAttribute="centerX" secondItem="x50-TP-khQ" secondAttribute="centerX" constant="140" id="Itr-j6-wsV"/>
+                            <constraint firstAttribute="centerX" secondItem="Awh-vc-dNp" secondAttribute="centerX" constant="195" id="MXw-8r-Nwj"/>
                             <constraint firstAttribute="centerY" secondItem="yhG-h3-dby" secondAttribute="centerY" id="WE9-VU-BeY"/>
+                            <constraint firstAttribute="centerX" secondItem="h5X-Hk-elW" secondAttribute="centerX" constant="-170" id="dEP-Aq-MOD"/>
+                            <constraint firstAttribute="centerY" secondItem="Awh-vc-dNp" secondAttribute="centerY" id="geS-Re-Imd"/>
                             <constraint firstAttribute="centerX" secondItem="yhG-h3-dby" secondAttribute="centerX" id="mAW-Kb-z5m"/>
+                            <constraint firstItem="Awh-vc-dNp" firstAttribute="centerX" secondItem="iA2-b4-QQA" secondAttribute="centerX" id="mrD-vA-l7D"/>
                             <constraint firstAttribute="centerY" secondItem="x50-TP-khQ" secondAttribute="centerY" id="tMX-SI-X3y"/>
+                            <constraint firstAttribute="centerY" secondItem="iA2-b4-QQA" secondAttribute="centerY" id="uL8-f5-oLj"/>
                         </constraints>
                     </view>
                     <connections>
@@ -67,6 +85,9 @@
                         <outlet property="_headingHorizontalConstraint" destination="Itr-j6-wsV" id="dik-tj-Nlm"/>
                         <outlet property="_headingImageView" destination="x50-TP-khQ" id="vmh-xo-NDq"/>
                         <outlet property="_headingVerticalConstraint" destination="tMX-SI-X3y" id="njO-NA-nRP"/>
+                        <outlet property="_sheetControlImageView" destination="iA2-b4-QQA" id="3W5-Sr-3if"/>
+                        <outlet property="_sheetScaleImageView" destination="Awh-vc-dNp" id="wdM-rn-g0F"/>
+                        <outlet property="_tillerImageView" destination="h5X-Hk-elW" id="Gnl-SX-6ij"/>
                         <outlet property="boatImageView" destination="qGe-k7-qqn" id="auS-xQ-LAs"/>
                     </connections>
                 </viewController>
@@ -78,6 +99,9 @@
         <image name="boat" width="150" height="50"/>
         <image name="compass-rose" width="300" height="300"/>
         <image name="heading" width="40" height="40"/>
+        <image name="sheet-control" width="92" height="27"/>
+        <image name="sheet-scale" width="26" height="239"/>
+        <image name="tiller" width="31" height="239"/>
     </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>
