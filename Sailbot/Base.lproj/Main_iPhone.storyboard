@@ -58,14 +58,14 @@
                                 <rect key="frame" x="-48" y="165" width="26" height="239"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </imageView>
-                            <imageView userInteractionEnabled="NO" alpha="0.0" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="tiller" translatesAutoresizingMaskIntoConstraints="NO" id="h5X-Hk-elW">
-                                <rect key="frame" x="315" y="165" width="31" height="239"/>
+                            <imageView alpha="0.0" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" image="tiller" translatesAutoresizingMaskIntoConstraints="NO" id="h5X-Hk-elW">
+                                <rect key="frame" x="315" y="164" width="31" height="449"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </imageView>
                         </subviews>
                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
-                            <constraint firstAttribute="centerY" secondItem="h5X-Hk-elW" secondAttribute="centerY" id="Hcu-uy-lG6"/>
+                            <constraint firstAttribute="centerY" secondItem="h5X-Hk-elW" secondAttribute="centerY" constant="-105" id="Hcu-uy-lG6"/>
                             <constraint firstAttribute="centerX" secondItem="x50-TP-khQ" secondAttribute="centerX" constant="140" id="Itr-j6-wsV"/>
                             <constraint firstAttribute="centerX" secondItem="Awh-vc-dNp" secondAttribute="centerX" constant="195" id="MXw-8r-Nwj"/>
                             <constraint firstAttribute="centerY" secondItem="yhG-h3-dby" secondAttribute="centerY" id="WE9-VU-BeY"/>
@@ -102,7 +102,7 @@
         <image name="heading" width="40" height="40"/>
         <image name="sheet-control" width="92" height="27"/>
         <image name="sheet-scale" width="26" height="239"/>
-        <image name="tiller" width="31" height="239"/>
+        <image name="tiller" width="31" height="449"/>
     </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>

@@ -61,6 +61,10 @@
     SBTOneFingerRotationGestureRecognizer *rotationGesture = [[SBTOneFingerRotationGestureRecognizer alloc] initWithTarget:self action:@selector(_rotateHeading:)];
     [_headingImageView addGestureRecognizer:rotationGesture];
     
+    UIPanGestureRecognizer *steeringControlGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(_manualSteering:)];
+    steeringControlGesture.maximumNumberOfTouches = 1;
+    [_tillerImageView addGestureRecognizer:steeringControlGesture];
+    
     UIPanGestureRecognizer *sheetControlGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(_manualSheet:)];
     sheetControlGesture.maximumNumberOfTouches = 1;
     [_sheetControlImageView addGestureRecognizer:sheetControlGesture];
@@ -78,6 +82,20 @@
     [SBTSailbotModel shared].selectedHeading = _heading;
     _headingVerticalConstraint.constant = sinf(_heading + _compassHeading) * _headingOffset;
     _headingHorizontalConstraint.constant = cosf(_heading + _compassHeading) * _headingOffset;
+}
+
+- (void)_manualSteering:(UIPanGestureRecognizer *)panGesture {
+    CGPoint vector;
+    vector.x = [panGesture locationInView:self.view].x - _tillerImageView.centerX;
+    vector.y = _tillerImageView.centerY - [panGesture locationInView:self.view].y;
+    CGFloat angle = atan2(vector.x, vector.y);
+    
+    // clamp value at 45 degrees
+    angle = angle > M_PI / 4.0 ? M_PI / 4.0 : angle;
+    angle = angle < -M_PI / 4.0 ? -M_PI / 4.0 : angle;
+    
+    _tillerImageView.transform = CGAffineTransformMakeRotation(angle);
+    [SBTSailbotModel shared].manualSteeringControl = angle;
 }
 
 - (void)_manualSheet:(UIPanGestureRecognizer *)panGesture {
