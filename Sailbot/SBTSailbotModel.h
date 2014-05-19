@@ -14,6 +14,7 @@ NS_ENUM(char, SBTSailbotModelHeader) {
     SBTSailbotModelHeaderAutomaticControl,
     SBTSailbotModelHeaderManualControl,
     SBTSailbotModelHeaderConfiguration,
+    SBTSailbotModelHeaderWindDirection,
 };
 
 // receive - current heading

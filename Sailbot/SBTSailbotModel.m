@@ -8,7 +8,10 @@
 
 #import "SBTSailbotModel.h"
 
-@implementation SBTSailbotModel
+@implementation SBTSailbotModel {
+    int _backingManualSteeringControl;
+    int _backingManualSheetControl;
+}
 
 static SBTSailbotModel *_shared = nil;
 
@@ -27,6 +30,42 @@ static SBTSailbotModel *_shared = nil;
     return self;
 }
 
+- (void)_sendManualControlData {
+    NSLog(@"send manual control: %i, %i", _backingManualSteeringControl, _backingManualSheetControl);
+    char bytes[1 + 4 + 4];
+    bytes[0] = SBTSailbotModelHeaderManualControl;
+    int *ptr = (int *)&bytes[1];
+    *ptr = _backingManualSteeringControl;
+    ptr = (int *)&bytes[1 + sizeof(int)];
+    *ptr = _backingManualSheetControl;
+    NSData *data = [NSData dataWithBytes:bytes length:1 + 2 * sizeof(int)];
+    [[SBTConnectionManager shared] send:data];
+}
+
+- (float)manualSteeringControl {
+    return (float)(_backingManualSteeringControl * 100);
+}
+
+- (void)setManualSteeringControl:(float)manualSteeringControl {
+    int newSteering = (int)(manualSteeringControl * 100);
+    if (newSteering != _backingManualSteeringControl) {
+        _backingManualSteeringControl = newSteering;
+        [self _sendManualControlData];
+    }
+}
+
+- (float)manualSheetControl {
+    return (float)(_backingManualSheetControl * 100);
+}
+
+- (void)setManualSheetControl:(float)manualSheetControl {
+    int newSheet = (int)(manualSheetControl * 100);
+    if (newSheet != _backingManualSheetControl) {
+        _backingManualSheetControl = newSheet;
+        [self _sendManualControlData];
+    }
+}
+
 - (void)didReceiveData:(NSData *)data {
     NSLog(@"didReceiveData %tu", [data length]);
     if ([data length] < 1)
@@ -36,9 +75,9 @@ static SBTSailbotModel *_shared = nil;
     enum SBTSailbotModelHeader command = bytes[0];
     switch (command) {
         case SBTSailbotModelHeaderBoatHeading: {
-            float heading;
-            memcpy(&heading, &bytes[1], sizeof(float));
-            NSLog(@"heading %f", heading);
+            float *ptr = (float *)&bytes[1];
+            float heading = *ptr;
+            NSLog(@"heading %f", heading * 180.0 / M_PI);
             if (_headingUpdateBlock)
                 _headingUpdateBlock(heading);
             break;
