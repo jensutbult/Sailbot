@@ -11,6 +11,7 @@
 #import "SBTCompassModel.h"
 #import "SBTOneFingerRotationGestureRecognizer.h"
 #import "UIView+SBTShortcuts.h"
+#import <AudioToolbox/AudioToolbox.h>
 
 @interface SBTViewController ()
 
@@ -31,15 +32,38 @@
     __weak IBOutlet NSLayoutConstraint *_sheetControlConstraint;
     __weak IBOutlet UIImageView *_sheetScaleImageView;
     __weak IBOutlet UIImageView *_tillerImageView;
+    IBOutletCollection(UIImageView) NSArray *_controlImageViews;
     CGFloat _compassViewSize;
     CGFloat _headingOffset;
     CGFloat _heading;
     CGFloat _compassHeading;
     CGFloat _compassCompensation;
+    CGFloat _enabledControlAlpha;
+}
+
+- (void)_updateControlAlpha:(CGFloat)alpha {
+    _enabledControlAlpha = alpha;
+    for (UIImageView *control in _controlImageViews) {
+        if (control.alpha > 0) {
+            control.alpha = _enabledControlAlpha;
+        }
+    }
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    [self _updateControlAlpha:0.3];
+    [[NSNotificationCenter defaultCenter] addObserverForName:SBTConnectionManagerDidConnect object:[SBTConnectionManager shared] queue:nil usingBlock:^(NSNotification *note) {
+        AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
+        [self _updateControlAlpha:1];
+    }];
+    [[NSNotificationCenter defaultCenter] addObserverForName:SBTConnectionManagerDidDisconnect object:[SBTConnectionManager shared] queue:nil usingBlock:^(NSNotification *note) {
+        AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
+        [self _updateControlAlpha:0.3];
+    }];
+
+    
     _compass = [[SBTCompassModel alloc] initWithHeadingUpdateBlock:^(CGFloat heading) {
         [UIView animateWithDuration:0.3 animations:^{
             _compassHeading = heading;
@@ -147,9 +171,9 @@
                 [_compassView layoutIfNeeded];
             } completion:^(BOOL finished) {
                 [UIView animateWithDuration:0.3 animations:^{
-                    _tillerImageView.alpha = 1;
-                    _sheetScaleImageView.alpha = 1;
-                    _sheetControlImageView.alpha = 1;
+                    _tillerImageView.alpha = _enabledControlAlpha;
+                    _sheetScaleImageView.alpha = _enabledControlAlpha;
+                    _sheetControlImageView.alpha = _enabledControlAlpha;
                 }];
             }];
         }];
@@ -167,7 +191,7 @@
                 [_compassView layoutIfNeeded];
             } completion:^(BOOL finished) {
                 [UIView animateWithDuration:0.3 animations:^{
-                    _headingImageView.alpha = 1;
+                    _headingImageView.alpha = _enabledControlAlpha;
                 }];
             }];
         }];

@@ -10,6 +10,9 @@
 #import "RFduinoManagerDelegate.h"
 #import "RFduinoDelegate.h"
 
+extern NSString *const SBTConnectionManagerDidConnect;
+extern NSString *const SBTConnectionManagerDidDisconnect;
+
 @protocol SBTConnectionManagerDelegate <NSObject>
 
 - (void)didReceiveData:(NSData *)data;

@@ -32,6 +32,7 @@
 		B46A0994191ED4D800711D4D /* SBTCompassModel.m in Sources */ = {isa = PBXBuildFile; fileRef = B46A0993191ED4D800711D4D /* SBTCompassModel.m */; };
 		B46A09971922D22100711D4D /* SBTOneFingerRotationGestureRecognizer.m in Sources */ = {isa = PBXBuildFile; fileRef = B46A09961922D22100711D4D /* SBTOneFingerRotationGestureRecognizer.m */; };
 		B4D93D891925F5C5004F2F60 /* UIView+SBTShortcuts.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D93D881925F5C5004F2F60 /* UIView+SBTShortcuts.m */; };
+		B4F8FE06192AAA480049C449 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4F8FE05192AAA480049C449 /* AudioToolbox.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -85,6 +86,7 @@
 		B46A09961922D22100711D4D /* SBTOneFingerRotationGestureRecognizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBTOneFingerRotationGestureRecognizer.m; sourceTree = "<group>"; };
 		B4D93D871925F5C5004F2F60 /* UIView+SBTShortcuts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+SBTShortcuts.h"; sourceTree = "<group>"; };
 		B4D93D881925F5C5004F2F60 /* UIView+SBTShortcuts.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+SBTShortcuts.m"; sourceTree = "<group>"; };
+		B4F8FE05192AAA480049C449 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -92,6 +94,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B4F8FE06192AAA480049C449 /* AudioToolbox.framework in Frameworks */,
 				B46A0990191ECD5900711D4D /* CoreLocation.framework in Frameworks */,
 				B46A098B191D8B0800711D4D /* QuartzCore.framework in Frameworks */,
 				B46A0989191D885000711D4D /* CoreBluetooth.framework in Frameworks */,
@@ -137,6 +140,7 @@
 		B46A0930191D81F400711D4D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B4F8FE05192AAA480049C449 /* AudioToolbox.framework */,
 				B46A098F191ECD5900711D4D /* CoreLocation.framework */,
 				B46A098A191D8B0800711D4D /* QuartzCore.framework */,
 				B46A0988191D885000711D4D /* CoreBluetooth.framework */,

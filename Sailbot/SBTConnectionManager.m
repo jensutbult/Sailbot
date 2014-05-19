@@ -10,6 +10,9 @@
 #import "RfduinoManager.h"
 #import "RFduino.h"
 
+NSString *const SBTConnectionManagerDidConnect = @"SBTConnectionManagerDidConnect";
+NSString *const SBTConnectionManagerDidDisconnect = @"SBTConnectionManagerDidDisconnect";
+
 @implementation SBTConnectionManager {
     RFduinoManager *_rfduinoManager;
     RFduino *_rfduino;
@@ -61,6 +64,7 @@ static SBTConnectionManager *_shared = nil;
 }
 
 - (void)didConnectRFduino:(RFduino *)rfduino {
+    [[NSNotificationCenter defaultCenter] postNotificationName:SBTConnectionManagerDidConnect object:self];
     NSLog(@"%@", rfduino);
     [_rfduinoManager stopScan];
 }
@@ -72,6 +76,7 @@ static SBTConnectionManager *_shared = nil;
 }
 
 - (void)didDisconnectRFduino:(RFduino *)rfduino {
+    [[NSNotificationCenter defaultCenter] postNotificationName:SBTConnectionManagerDidDisconnect object:self];
     NSLog(@"%@", rfduino);
     _rfduino = nil;
     [_rfduinoManager startScan];

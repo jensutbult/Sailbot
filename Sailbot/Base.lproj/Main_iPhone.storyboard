@@ -46,7 +46,7 @@
                                     <constraint firstAttribute="height" constant="320" id="uSq-fs-ZcO"/>
                                 </constraints>
                             </view>
-                            <imageView contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="heading" translatesAutoresizingMaskIntoConstraints="NO" id="x50-TP-khQ">
+                            <imageView alpha="0.29999999999999999" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="heading" translatesAutoresizingMaskIntoConstraints="NO" id="x50-TP-khQ">
                                 <rect key="frame" x="0.0" y="264" width="40" height="40"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </imageView>
@@ -90,6 +90,10 @@
                         <outlet property="_sheetScaleImageView" destination="Awh-vc-dNp" id="wdM-rn-g0F"/>
                         <outlet property="_tillerImageView" destination="h5X-Hk-elW" id="Gnl-SX-6ij"/>
                         <outlet property="boatImageView" destination="qGe-k7-qqn" id="auS-xQ-LAs"/>
+                        <outletCollection property="_controlImageViews" destination="h5X-Hk-elW" id="lgt-E0-p8Y"/>
+                        <outletCollection property="_controlImageViews" destination="iA2-b4-QQA" id="xNq-6i-Geu"/>
+                        <outletCollection property="_controlImageViews" destination="Awh-vc-dNp" id="swQ-tE-gl8"/>
+                        <outletCollection property="_controlImageViews" destination="x50-TP-khQ" id="HNQ-g2-9w1"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>

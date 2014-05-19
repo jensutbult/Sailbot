@@ -191,16 +191,17 @@ static CBUUID *service_uuid;
     };
     
     if (error.code) {
-        cancelBlock = block;
+        block();
+        //        cancelBlock = block;
 
 #if TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR
         
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Peripheral Disconnected with Error"
-                                                        message:error.description
-                                                       delegate:self
-                                              cancelButtonTitle:@"OK"
-                                              otherButtonTitles:nil];
-        [alert show];
+//        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Peripheral Disconnected with Error"
+//                                                        message:error.description
+//                                                       delegate:self
+//                                              cancelButtonTitle:@"OK"
+//                                              otherButtonTitles:nil];
+//        [alert show];
         
 #endif
         
