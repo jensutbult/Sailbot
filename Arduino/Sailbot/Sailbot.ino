@@ -5,6 +5,7 @@
 #include "RTFusionRTQF.h"
 #include "CalLib.h"
 #include <RFduinoBLE.h>
+#include <Servo.h>
 
 RTIMU *imu;                                           // the IMU object
 RTFusionRTQF fusion;                                  // the fusion object
@@ -23,6 +24,9 @@ enum SBTSailbotModelHeader {
 
 unsigned long lastDataPacketSent;
 
+Servo tillerServo;
+Servo sheetServo;
+
 void setup() {
   Serial.begin(SERIAL_PORT_SPEED);
   Wire.begin();
@@ -39,6 +43,9 @@ void setup() {
     Serial.println("Using compass calibration");
   else
     Serial.println("No valid compass calibration data");
+
+  tillerServo.attach(2);
+  sheetServo.attach(3);
 
   RFduinoBLE.advertisementInterval = 675;
   RFduinoBLE.advertisementData = "Sailbot";
@@ -96,8 +103,8 @@ void RFduinoBLE_onReceive(char *data, int len) {
         memcpy(&rudder, &data[1], sizeof(rudder));
         int sheet;
         memcpy(&sheet, &data[1 + 4], sizeof(sheet));
-        Serial.print("Rudder angle "); Serial.println(rudder);
-        Serial.print("Sheet "); Serial.println(sheet);
+        tillerServo.write(((rudder / 10.0) + M_PI / 2.0) * 180.0 / M_PI);
+        sheetServo.write((sheet / 10.0) * 60 + 90);
         break;
       }
     default:
