@@ -30,12 +30,14 @@ enum SBTSailbotModelState {
   SBTSailbotModelStateRecoveryMode,
 };
 
-#define DATA_PACKET_SEND_INTERVAL  250
+#define DATA_PACKET_SEND_INTERVAL  500
 #define  SERIAL_PORT_SPEED  9600
 
 unsigned long lastDataPacketSent;
 
 char state;
+char remoteState;
+int failedIMUReadCount;
 
 Servo tillerServo;
 Servo sheetServo;
@@ -43,6 +45,7 @@ Servo sheetServo;
 void setup() {
   Serial.begin(SERIAL_PORT_SPEED);
   Wire.begin();
+  remoteState = SBTSailbotModelStateManualControl;
   imu = RTIMU::createIMU(&settings);                        // create the imu object
 
   Serial.print("ArduinoIMU starting using device ");
@@ -71,21 +74,44 @@ void loop() {
   unsigned long now = millis();
 
   if (imu->IMURead()) {
+    failedIMUReadCount = 0;
     fusion.newIMUData(imu->getGyro(), imu->getAccel(), imu->getCompass(), imu->getTimestamp());
-    if ((now - lastDataPacketSent) >= DATA_PACKET_SEND_INTERVAL) {
-      lastDataPacketSent = now;
-      if (!imu->IMUGyroBiasValid()) {
-        Serial.println("Calculating gyro bias - don't move IMU!");
 
-        char buffer[2];
-        buffer[0] = SBTSailbotModelHeaderState;
-        buffer[1] = SBTSailbotModelStateCalibratingIMU;
-        RFduinoBLE.send((char*)&buffer, 2);
-        return;
-      }
+    // Determine local state
+    if (!imu->IMUGyroBiasValid()) {
+      state = SBTSailbotModelStateCalibratingIMU;
+    } else {
+      state = remoteState;
+    }
 
+    // Update rudder and sheet
+    if (state == SBTSailbotModelStateAutomaticControl) {
+
+    } else if (state == SBTSailbotModelStateRecoveryMode) {
+
+    }
+  } else {
+    failedIMUReadCount++;
+    if (failedIMUReadCount > 50) {
+      state = SBTSailbotModelStateNoIMU;
+    }
+  }
+
+  // Communicate with remote
+  if ((now - lastDataPacketSent) >= DATA_PACKET_SEND_INTERVAL) {
+    lastDataPacketSent = now;
+    if (state == SBTSailbotModelStateCalibratingIMU) {
+      char buffer[2];
+      buffer[0] = SBTSailbotModelHeaderState;
+      buffer[1] = SBTSailbotModelStateCalibratingIMU;
+      RFduinoBLE.send((char*)&buffer, 2);
+    } else if (state == SBTSailbotModelStateNoIMU) {
+      char buffer[2];
+      buffer[0] = SBTSailbotModelHeaderState;
+      buffer[1] = SBTSailbotModelStateNoIMU;
+      RFduinoBLE.send((char*)&buffer, 2);
+    } else {
       const RTVector3& vec = fusion.getFusionPose();
-
       char buffer[10];
       buffer[0] = SBTSailbotModelHeaderBoatHeading;
       buffer[1] = state;
@@ -93,14 +119,8 @@ void loop() {
       memcpy(&buffer[2], &heading, sizeof(heading));
       RFduinoBLE.send((char*)&buffer, sizeof(float) + 2);
     }
-  } else {
-    char buffer[2];
-    buffer[0] = SBTSailbotModelHeaderState;
-    buffer[1] = SBTSailbotModelStateNoIMU;
-    RFduinoBLE.send((char*)&buffer, 2);
   }
 }
-
 
 void RFduinoBLE_onConnect() {
   Serial.println("Bluetooth connect");
@@ -110,20 +130,20 @@ void RFduinoBLE_onDisconnect() {
   Serial.println("Bluetooth disconnect");
 }
 
-void RFduinoBLE_onReceive(char *data, int len) {
+void RFduinoBLE_onReceive(char * data, int len) {
 
   SBTSailbotModelHeader command = (SBTSailbotModelHeader)data[0];
 
   switch (command) {
     case SBTSailbotModelHeaderAutomaticControl: {
-        state = SBTSailbotModelStateAutomaticControl;
+        remoteState = SBTSailbotModelStateAutomaticControl;
         int heading;
         memcpy(&heading, &data[1], sizeof(heading));
         Serial.print("Selected heading "); Serial.println(heading);
         break;
       }
     case SBTSailbotModelHeaderManualControl: {
-        state = SBTSailbotModelStateManualControl;
+        remoteState = SBTSailbotModelStateManualControl;
         int rudder;
         memcpy(&rudder, &data[1], sizeof(rudder));
         int sheet;
