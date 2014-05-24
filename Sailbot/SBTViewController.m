@@ -33,6 +33,7 @@
     __weak IBOutlet UIImageView *_sheetScaleImageView;
     __weak IBOutlet UIImageView *_tillerImageView;
     IBOutletCollection(UIImageView) NSArray *_controlImageViews;
+    UIAlertView *_alertView;
     CGFloat _compassViewSize;
     CGFloat _headingOffset;
     CGFloat _heading;
@@ -54,14 +55,6 @@
     [super viewDidLoad];
     
     [self _updateControlAlpha:0.3];
-    [[NSNotificationCenter defaultCenter] addObserverForName:SBTConnectionManagerDidConnect object:[SBTConnectionManager shared] queue:nil usingBlock:^(NSNotification *note) {
-        AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
-        [self _updateControlAlpha:1];
-    }];
-    [[NSNotificationCenter defaultCenter] addObserverForName:SBTConnectionManagerDidDisconnect object:[SBTConnectionManager shared] queue:nil usingBlock:^(NSNotification *note) {
-        AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
-        [self _updateControlAlpha:0.3];
-    }];
     [[NSNotificationCenter defaultCenter] addObserverForName:SBTSailbotModelStateDidChange object:[SBTSailbotModel shared] queue:nil usingBlock:^(NSNotification *note) {
         [self _sailbotStateDidChange:note];
     }];
@@ -102,9 +95,19 @@
     enum SBTSailbotModelState state = [SBTSailbotModel shared].state;
     
     switch (state) {
+        case SBTSailbotModelStateConnected: {
+            AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
+            [self _updateControlAlpha:1];
+            break;
+        }
+        case SBTSailbotModelStateDisconnected: {
+            AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
+            [self _updateControlAlpha:0.3];
+            break;
+        }
         case SBTSailbotModelStateCalibratingIMU: {
-            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Calibratring IMU" message:@"Don't move boat!" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
-            [alert show];
+            _alertView = [[UIAlertView alloc] initWithTitle:@"Calibratring IMU" message:@"Don't move boat!" delegate:nil cancelButtonTitle:nil otherButtonTitles:nil];
+            [_alertView show];
             break;
         }
         case SBTSailbotModelStateNoIMU: {
@@ -112,9 +115,13 @@
             [alert show];
             break;
         }
-
-        default:
+        default: {
+            if (_alertView) {
+                [_alertView dismissWithClickedButtonIndex:0 animated:YES];
+                _alertView = nil;
+            }
             break;
+        }
     }
 }
 
@@ -125,7 +132,7 @@
     if (_heading > 2 * M_PI)
         _heading -= 2 * M_PI;
     
-    [SBTSailbotModel shared].selectedHeading = _heading;
+    [SBTSailbotModel shared].automaticHeading = _heading;
     _headingVerticalConstraint.constant = sinf(_heading + _compassHeading) * _headingOffset;
     _headingHorizontalConstraint.constant = cosf(_heading + _compassHeading) * _headingOffset;
 }

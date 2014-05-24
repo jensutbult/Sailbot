@@ -21,10 +21,13 @@ enum SBTSailbotModelHeader {
 };
 
 enum SBTSailbotModelState {
-  SBTSailbotModelStateCalibratingIMU = 1,
+  SBTSailbotModelStateConnected = 1,
+  SBTSailbotModelStateDisconnected,
+  SBTSailbotModelStateCalibratingIMU,
   SBTSailbotModelStateNoIMU,
   SBTSailbotModelStateManualControl,
   SBTSailbotModelStateAutomaticControl,
+  SBTSailbotModelStateRecoveryMode,
 };
 
 #define DATA_PACKET_SEND_INTERVAL  250
@@ -93,7 +96,7 @@ void loop() {
   } else {
     char buffer[2];
     buffer[0] = SBTSailbotModelHeaderState;
-    buffer[1] = SBTSailbotModelStateLostIMU;
+    buffer[1] = SBTSailbotModelStateNoIMU;
     RFduinoBLE.send((char*)&buffer, 2);
   }
 }

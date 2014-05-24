@@ -13,7 +13,7 @@ NSString *const SBTSailbotModelStateDidChange = @"SBTSailbotModelStateDidChange"
 @implementation SBTSailbotModel {
     int _backingManualSteeringControl;
     int _backingManualSheetControl;
-    int _backingSelectedHeading;
+    int _backingAutomaticHeading;
 }
 
 static SBTSailbotModel *_shared = nil;
@@ -29,6 +29,12 @@ static SBTSailbotModel *_shared = nil;
     self = [super init];
     if (self) {
         [SBTConnectionManager shared].delegate = self;
+        [[NSNotificationCenter defaultCenter] addObserverForName:SBTConnectionManagerDidConnect object:[SBTConnectionManager shared] queue:nil usingBlock:^(NSNotification *note) {
+            [self _setState:SBTSailbotModelStateConnected];
+        }];
+        [[NSNotificationCenter defaultCenter] addObserverForName:SBTConnectionManagerDidDisconnect object:[SBTConnectionManager shared] queue:nil usingBlock:^(NSNotification *note) {
+            [self _setState:SBTSailbotModelStateDisconnected];
+        }];
     }
     return self;
 }
@@ -53,19 +59,19 @@ static SBTSailbotModel *_shared = nil;
 }
 
 - (void)sendAutomaticControlData {
-    NSLog(@"send automatic control: %i", _backingSelectedHeading);
+    NSLog(@"send automatic control: %i", _backingAutomaticHeading);
     char bytes[1 + 4];
     bytes[0] = SBTSailbotModelHeaderAutomaticControl;
     int *ptr = (int *)&bytes[1];
-    *ptr = _backingSelectedHeading;
+    *ptr = _backingAutomaticHeading;
     NSData *data = [NSData dataWithBytes:bytes length:1 + sizeof(int)];
     [[SBTConnectionManager shared] send:data];
 }
 
-- (void)setSelectedHeading:(float)selectedHeading {
-    int newSelectedHeading = (int)(selectedHeading * 180.0 / M_PI);
-    if (newSelectedHeading != _backingSelectedHeading) {
-        _backingSelectedHeading = newSelectedHeading;
+- (void)setAutomaticHeading:(float)automaticHeading {
+    int newAutomaticHeading = (int)(automaticHeading * 180.0 / M_PI);
+    if (newAutomaticHeading != _backingAutomaticHeading) {
+        _backingAutomaticHeading = newAutomaticHeading;
         [self sendAutomaticControlData];
     }
 }

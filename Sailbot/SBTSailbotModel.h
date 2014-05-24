@@ -19,10 +19,13 @@ NS_ENUM(char, SBTSailbotModelHeader) {
 };
 
 NS_ENUM(NSUInteger, SBTSailbotModelState) {
-    SBTSailbotModelStateCalibratingIMU = 1,
+    SBTSailbotModelStateConnected = 1,
+    SBTSailbotModelStateDisconnected,
+    SBTSailbotModelStateCalibratingIMU,
     SBTSailbotModelStateNoIMU,
     SBTSailbotModelStateManualControl,
     SBTSailbotModelStateAutomaticControl,
+    SBTSailbotModelStateRecoveryMode,
 };
 
 extern NSString *const SBTSailbotModelStateDidChange;
@@ -45,7 +48,7 @@ typedef void (^HeadingUpdateBlock)(CGFloat heading);
 
 @property (nonatomic, readonly) enum SBTSailbotModelState state;
 @property (nonatomic, copy) HeadingUpdateBlock headingUpdateBlock;
-@property (nonatomic, assign) float selectedHeading;
+@property (nonatomic, assign) float automaticHeading;
 @property (nonatomic, assign) float manualSheetControl;
 @property (nonatomic, assign) float manualSteeringControl;
 
