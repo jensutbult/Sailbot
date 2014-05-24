@@ -12,17 +12,27 @@ RTFusionRTQF fusion;                                  // the fusion object
 RTIMUSettings settings;                               // the settings object
 
 enum SBTSailbotModelHeader {
-  SBTSailbotModelHeaderBoatHeading = 1,
+  SBTSailbotModelHeaderState = 1,
+  SBTSailbotModelHeaderBoatHeading,
   SBTSailbotModelHeaderAutomaticControl,
   SBTSailbotModelHeaderManualControl,
   SBTSailbotModelHeaderConfiguration,
   SBTSailbotModelHeaderWindDirection,
 };
 
+enum SBTSailbotModelState {
+  SBTSailbotModelStateCalibratingIMU = 1,
+  SBTSailbotModelStateNoIMU,
+  SBTSailbotModelStateManualControl,
+  SBTSailbotModelStateAutomaticControl,
+};
+
 #define DATA_PACKET_SEND_INTERVAL  250
 #define  SERIAL_PORT_SPEED  9600
 
 unsigned long lastDataPacketSent;
+
+char state;
 
 Servo tillerServo;
 Servo sheetServo;
@@ -63,6 +73,11 @@ void loop() {
       lastDataPacketSent = now;
       if (!imu->IMUGyroBiasValid()) {
         Serial.println("Calculating gyro bias - don't move IMU!");
+
+        char buffer[2];
+        buffer[0] = SBTSailbotModelHeaderState;
+        buffer[1] = SBTSailbotModelStateCalibratingIMU;
+        RFduinoBLE.send((char*)&buffer, 2);
         return;
       }
 
@@ -70,11 +85,16 @@ void loop() {
 
       char buffer[10];
       buffer[0] = SBTSailbotModelHeaderBoatHeading;
+      buffer[1] = state;
       float heading = vec.z();
-      memcpy(&buffer[1], &heading, sizeof(heading));
-
-      RFduinoBLE.send((char*)&buffer, sizeof(float) + 1);
+      memcpy(&buffer[2], &heading, sizeof(heading));
+      RFduinoBLE.send((char*)&buffer, sizeof(float) + 2);
     }
+  } else {
+    char buffer[2];
+    buffer[0] = SBTSailbotModelHeaderState;
+    buffer[1] = SBTSailbotModelStateLostIMU;
+    RFduinoBLE.send((char*)&buffer, 2);
   }
 }
 
@@ -93,18 +113,21 @@ void RFduinoBLE_onReceive(char *data, int len) {
 
   switch (command) {
     case SBTSailbotModelHeaderAutomaticControl: {
-        float heading;
+        state = SBTSailbotModelStateAutomaticControl;
+        int heading;
         memcpy(&heading, &data[1], sizeof(heading));
         Serial.print("Selected heading "); Serial.println(heading);
         break;
       }
     case SBTSailbotModelHeaderManualControl: {
+        state = SBTSailbotModelStateManualControl;
         int rudder;
         memcpy(&rudder, &data[1], sizeof(rudder));
         int sheet;
         memcpy(&sheet, &data[1 + 4], sizeof(sheet));
         tillerServo.write(((rudder / 10.0) + M_PI / 2.0) * 180.0 / M_PI);
         sheetServo.write((sheet / 10.0) * 60 + 90);
+        Serial.print("Manual Control "); Serial.println(rudder);
         break;
       }
     default:

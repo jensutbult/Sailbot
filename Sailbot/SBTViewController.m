@@ -62,7 +62,9 @@
         AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
         [self _updateControlAlpha:0.3];
     }];
-
+    [[NSNotificationCenter defaultCenter] addObserverForName:SBTSailbotModelStateDidChange object:[SBTSailbotModel shared] queue:nil usingBlock:^(NSNotification *note) {
+        [self _sailbotStateDidChange:note];
+    }];
     
     _compass = [[SBTCompassModel alloc] initWithHeadingUpdateBlock:^(CGFloat heading) {
         [UIView animateWithDuration:0.3 animations:^{
@@ -94,6 +96,26 @@
     [_sheetControlImageView addGestureRecognizer:sheetControlGesture];
     
     _boatImageView.layer.anchorPoint = CGPointMake(0.5, 0.5);
+}
+
+- (void)_sailbotStateDidChange:(NSNotification *)note {
+    enum SBTSailbotModelState state = [SBTSailbotModel shared].state;
+    
+    switch (state) {
+        case SBTSailbotModelStateCalibratingIMU: {
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Calibratring IMU" message:@"Don't move boat!" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+            [alert show];
+            break;
+        }
+        case SBTSailbotModelStateNoIMU: {
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Lost IMU!" message:@"Switch to manual control!" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+            [alert show];
+            break;
+        }
+
+        default:
+            break;
+    }
 }
 
 - (void)_rotateHeading:(SBTOneFingerRotationGestureRecognizer *)rotationGesture {
@@ -161,6 +183,7 @@
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
     if (fromInterfaceOrientation == UIDeviceOrientationPortrait) {
         // Switch to landscape mode (manual control)
+        [[SBTSailbotModel shared] sendManualControlData];
         [UIView animateWithDuration:0.3 animations:^{
             _headingImageView.alpha = 0;
         } completion:^(BOOL finished) {
@@ -179,6 +202,7 @@
         }];
     } else {
         // Switch to portrait mode (automatic)
+        [[SBTSailbotModel shared] sendAutomaticControlData];
         [UIView animateWithDuration:0.3 animations:^{
             _tillerImageView.alpha = 0;
             _sheetScaleImageView.alpha = 0;

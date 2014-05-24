@@ -8,9 +8,12 @@
 
 #import "SBTSailbotModel.h"
 
+NSString *const SBTSailbotModelStateDidChange = @"SBTSailbotModelStateDidChange";
+
 @implementation SBTSailbotModel {
     int _backingManualSteeringControl;
     int _backingManualSheetControl;
+    int _backingSelectedHeading;
 }
 
 static SBTSailbotModel *_shared = nil;
@@ -30,7 +33,14 @@ static SBTSailbotModel *_shared = nil;
     return self;
 }
 
-- (void)_sendManualControlData {
+- (void)_setState:(enum SBTSailbotModelState)state {
+    if (state != _state) {
+        _state = state;
+        [[NSNotificationCenter defaultCenter] postNotificationName:SBTSailbotModelStateDidChange object:self];
+    }
+}
+
+- (void)sendManualControlData {
     NSLog(@"send manual control: %i, %i", _backingManualSteeringControl, _backingManualSheetControl);
     char bytes[1 + 4 + 4];
     bytes[0] = SBTSailbotModelHeaderManualControl;
@@ -42,6 +52,24 @@ static SBTSailbotModel *_shared = nil;
     [[SBTConnectionManager shared] send:data];
 }
 
+- (void)sendAutomaticControlData {
+    NSLog(@"send automatic control: %i", _backingSelectedHeading);
+    char bytes[1 + 4];
+    bytes[0] = SBTSailbotModelHeaderAutomaticControl;
+    int *ptr = (int *)&bytes[1];
+    *ptr = _backingSelectedHeading;
+    NSData *data = [NSData dataWithBytes:bytes length:1 + sizeof(int)];
+    [[SBTConnectionManager shared] send:data];
+}
+
+- (void)setSelectedHeading:(float)selectedHeading {
+    int newSelectedHeading = (int)(selectedHeading * 180.0 / M_PI);
+    if (newSelectedHeading != _backingSelectedHeading) {
+        _backingSelectedHeading = newSelectedHeading;
+        [self sendAutomaticControlData];
+    }
+}
+
 - (float)manualSteeringControl {
     return (float)(_backingManualSteeringControl * 10);
 }
@@ -50,7 +78,7 @@ static SBTSailbotModel *_shared = nil;
     int newSteering = (int)(manualSteeringControl * 10);
     if (newSteering != _backingManualSteeringControl) {
         _backingManualSteeringControl = newSteering;
-        [self _sendManualControlData];
+        [self sendManualControlData];
     }
 }
 
@@ -62,7 +90,7 @@ static SBTSailbotModel *_shared = nil;
     int newSheet = (int)(manualSheetControl * 10);
     if (newSheet != _backingManualSheetControl) {
         _backingManualSheetControl = newSheet;
-        [self _sendManualControlData];
+        [self sendManualControlData];
     }
 }
 
@@ -73,15 +101,19 @@ static SBTSailbotModel *_shared = nil;
 
     const char *bytes = [data bytes];
     enum SBTSailbotModelHeader command = bytes[0];
+    [self _setState:bytes[1]];
     switch (command) {
         case SBTSailbotModelHeaderBoatHeading: {
-            float *ptr = (float *)&bytes[1];
+            float *ptr = (float *)&bytes[2];
             float heading = *ptr;
             NSLog(@"heading %f", heading * 180.0 / M_PI);
             if (_headingUpdateBlock)
                 _headingUpdateBlock(heading);
             break;
         }
+            //        case SBTSailbotModelHeaderCalibratingIMU: {
+            //            [self _setState:SBTSailbotModelStateCalibratingIMU];
+            //        }
         default:
             break;
     }

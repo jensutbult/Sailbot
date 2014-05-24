@@ -10,12 +10,23 @@
 #import "SBTConnectionManager.h"
 
 NS_ENUM(char, SBTSailbotModelHeader) {
-    SBTSailbotModelHeaderBoatHeading = 1,
+    SBTSailbotModelHeaderState = 1,
+    SBTSailbotModelHeaderBoatHeading,
     SBTSailbotModelHeaderAutomaticControl,
     SBTSailbotModelHeaderManualControl,
     SBTSailbotModelHeaderConfiguration,
     SBTSailbotModelHeaderWindDirection,
 };
+
+NS_ENUM(NSUInteger, SBTSailbotModelState) {
+    SBTSailbotModelStateCalibratingIMU = 1,
+    SBTSailbotModelStateNoIMU,
+    SBTSailbotModelStateManualControl,
+    SBTSailbotModelStateAutomaticControl,
+};
+
+extern NSString *const SBTSailbotModelStateDidChange;
+
 
 // receive - current heading
 // send - configuration data
@@ -29,7 +40,10 @@ typedef void (^HeadingUpdateBlock)(CGFloat heading);
 @interface SBTSailbotModel : NSObject <SBTConnectionManagerDelegate>
 
 + (SBTSailbotModel *)shared;
+- (void)sendManualControlData;
+- (void)sendAutomaticControlData;
 
+@property (nonatomic, readonly) enum SBTSailbotModelState state;
 @property (nonatomic, copy) HeadingUpdateBlock headingUpdateBlock;
 @property (nonatomic, assign) float selectedHeading;
 @property (nonatomic, assign) float manualSheetControl;
