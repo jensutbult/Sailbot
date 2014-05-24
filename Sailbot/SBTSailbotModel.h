@@ -23,6 +23,7 @@ NS_ENUM(NSUInteger, SBTSailbotModelState) {
     SBTSailbotModelStateDisconnected,
     SBTSailbotModelStateCalibratingIMU,
     SBTSailbotModelStateNoIMU,
+    SBTSailbotModelStateWindNotCalibrated,
     SBTSailbotModelStateManualControl,
     SBTSailbotModelStateAutomaticControl,
     SBTSailbotModelStateRecoveryMode,
@@ -43,6 +44,7 @@ typedef void (^HeadingUpdateBlock)(CGFloat heading);
 @interface SBTSailbotModel : NSObject <SBTConnectionManagerDelegate>
 
 + (SBTSailbotModel *)shared;
+- (void)calibrateWind:(int)direction;
 - (void)sendManualControlData;
 - (void)sendAutomaticControlData;
 

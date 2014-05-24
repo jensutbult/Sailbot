@@ -25,6 +25,7 @@ enum SBTSailbotModelState {
   SBTSailbotModelStateDisconnected,
   SBTSailbotModelStateCalibratingIMU,
   SBTSailbotModelStateNoIMU,
+  SBTSailbotModelStateWindNotCalibrated,
   SBTSailbotModelStateManualControl,
   SBTSailbotModelStateAutomaticControl,
   SBTSailbotModelStateRecoveryMode,
@@ -38,6 +39,10 @@ unsigned long lastDataPacketSent;
 char state;
 char remoteState;
 int failedIMUReadCount;
+bool calibratedWind;
+float windDirection;
+float heading;
+
 
 Servo tillerServo;
 Servo sheetServo;
@@ -46,6 +51,7 @@ void setup() {
   Serial.begin(SERIAL_PORT_SPEED);
   Wire.begin();
   remoteState = SBTSailbotModelStateManualControl;
+  calibratedWind = false;
   imu = RTIMU::createIMU(&settings);                        // create the imu object
 
   Serial.print("ArduinoIMU starting using device ");
@@ -80,6 +86,8 @@ void loop() {
     // Determine local state
     if (!imu->IMUGyroBiasValid()) {
       state = SBTSailbotModelStateCalibratingIMU;
+    } else if (!calibratedWind) {
+      state = SBTSailbotModelStateWindNotCalibrated;
     } else {
       state = remoteState;
     }
@@ -100,22 +108,17 @@ void loop() {
   // Communicate with remote
   if ((now - lastDataPacketSent) >= DATA_PACKET_SEND_INTERVAL) {
     lastDataPacketSent = now;
-    if (state == SBTSailbotModelStateCalibratingIMU) {
+    if (state == SBTSailbotModelStateCalibratingIMU || state == SBTSailbotModelStateNoIMU) {
       char buffer[2];
       buffer[0] = SBTSailbotModelHeaderState;
-      buffer[1] = SBTSailbotModelStateCalibratingIMU;
-      RFduinoBLE.send((char*)&buffer, 2);
-    } else if (state == SBTSailbotModelStateNoIMU) {
-      char buffer[2];
-      buffer[0] = SBTSailbotModelHeaderState;
-      buffer[1] = SBTSailbotModelStateNoIMU;
+      buffer[1] = state;
       RFduinoBLE.send((char*)&buffer, 2);
     } else {
       const RTVector3& vec = fusion.getFusionPose();
       char buffer[10];
       buffer[0] = SBTSailbotModelHeaderBoatHeading;
       buffer[1] = state;
-      float heading = vec.z();
+      heading = vec.z();
       memcpy(&buffer[2], &heading, sizeof(heading));
       RFduinoBLE.send((char*)&buffer, sizeof(float) + 2);
     }
@@ -139,7 +142,7 @@ void RFduinoBLE_onReceive(char * data, int len) {
         remoteState = SBTSailbotModelStateAutomaticControl;
         int heading;
         memcpy(&heading, &data[1], sizeof(heading));
-        Serial.print("Selected heading "); Serial.println(heading);
+        Serial.print("Automatic heading: "); Serial.println(heading);
         break;
       }
     case SBTSailbotModelHeaderManualControl: {
@@ -150,8 +153,20 @@ void RFduinoBLE_onReceive(char * data, int len) {
         memcpy(&sheet, &data[1 + 4], sizeof(sheet));
         tillerServo.write(((rudder / 10.0) + M_PI / 2.0) * 180.0 / M_PI);
         sheetServo.write((sheet / 10.0) * 60 + 90);
-        Serial.print("Manual Control "); Serial.println(rudder);
+        Serial.print("Manual control: "); Serial.println(rudder);
         break;
+      }
+    case SBTSailbotModelHeaderWindDirection: {
+        int newWindDirection;
+        memcpy(&newWindDirection, &data[1], sizeof(newWindDirection));
+        if (newWindDirection < 0) {
+          windDirection = heading;
+        } else {
+          windDirection = (float)newWindDirection;
+        }
+        calibratedWind = true;
+        state = SBTSailbotModelStateManualControl;
+        Serial.print("Set wind direction: "); Serial.println(newWindDirection);
       }
     default:
       break;

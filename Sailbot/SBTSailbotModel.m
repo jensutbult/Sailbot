@@ -46,6 +46,16 @@ static SBTSailbotModel *_shared = nil;
     }
 }
 
+- (void)calibrateWind:(int)direction {
+    NSLog(@"calibrate wind: %i", direction);
+    char bytes[1 + 4];
+    bytes[0] = SBTSailbotModelHeaderWindDirection;
+    int *ptr = (int *)&bytes[1];
+    *ptr = direction;
+    NSData *data = [NSData dataWithBytes:bytes length:1 + sizeof(int)];
+    [[SBTConnectionManager shared] send:data];
+}
+
 - (void)sendManualControlData {
     NSLog(@"send manual control: %i, %i", _backingManualSteeringControl, _backingManualSheetControl);
     char bytes[1 + 4 + 4];
@@ -100,13 +110,28 @@ static SBTSailbotModel *_shared = nil;
     }
 }
 
+- (NSString *)_stringFromHeader:(char)header {
+    NSArray *_headers = @[@"NO STATE",
+                          @"Connected",
+                          @"Disconnected",
+                          @"CalibratingIMU",
+                          @"NoIMU",
+                          @"WindNotCalibrated",
+                          @"ManualControl",
+                          @"AutomaticControl",
+                          @"RecoveryMode",
+                          ];
+    return _headers[header];
+}
+
 - (void)didReceiveData:(NSData *)data {
-    NSLog(@"didReceiveData %tu", [data length]);
     if ([data length] < 1)
         return;
 
     const char *bytes = [data bytes];
     enum SBTSailbotModelHeader command = bytes[0];
+    NSLog(@"%@ (%tu bytes)", [self _stringFromHeader:bytes[1]], [data length]);
+    
     [self _setState:bytes[1]];
     switch (command) {
         case SBTSailbotModelHeaderBoatHeading: {

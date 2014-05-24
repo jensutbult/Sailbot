@@ -8,6 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface SBTViewController : UIViewController
+@interface SBTViewController : UIViewController <UIAlertViewDelegate>
 
 @end

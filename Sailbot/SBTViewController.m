@@ -92,6 +92,11 @@
 }
 
 - (void)_sailbotStateDidChange:(NSNotification *)note {
+    if (_alertView) {
+        [_alertView dismissWithClickedButtonIndex:0 animated:YES];
+        _alertView = nil;
+    }
+    
     enum SBTSailbotModelState state = [SBTSailbotModel shared].state;
     
     switch (state) {
@@ -115,14 +120,27 @@
             [alert show];
             break;
         }
+        case SBTSailbotModelStateWindNotCalibrated: {
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Calibrate wind" message:@"Point boat into wind direction" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
+            [alert show];
+            break;
+        }
         default: {
-            if (_alertView) {
-                [_alertView dismissWithClickedButtonIndex:0 animated:YES];
-                _alertView = nil;
-            }
             break;
         }
     }
+}
+
+- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
+    [[SBTSailbotModel shared] calibrateWind:-1];
+    
+    UIInterfaceOrientation orientation = [self interfaceOrientation];
+    if (orientation == UIDeviceOrientationPortrait) {
+        [[SBTSailbotModel shared] sendAutomaticControlData];
+    } else {
+        [[SBTSailbotModel shared] sendManualControlData];
+    }
+
 }
 
 - (void)_rotateHeading:(SBTOneFingerRotationGestureRecognizer *)rotationGesture {
