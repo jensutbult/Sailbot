@@ -10,8 +10,7 @@
 #import "SBTConnectionManager.h"
 
 NS_ENUM(char, SBTSailbotModelHeader) {
-    SBTSailbotModelHeaderState = 1,
-    SBTSailbotModelHeaderBoatHeading,
+    SBTSailbotModelHeaderBoatState = 1,
     SBTSailbotModelHeaderAutomaticControl,
     SBTSailbotModelHeaderManualControl,
     SBTSailbotModelHeaderConfiguration,
@@ -53,5 +52,10 @@ typedef void (^HeadingUpdateBlock)(CGFloat heading);
 @property (nonatomic, assign) float automaticHeading;
 @property (nonatomic, assign) float manualSheetControl;
 @property (nonatomic, assign) float manualSteeringControl;
+
+@property (nonatomic, readonly) float boatHeading;
+@property (nonatomic, readonly) float boatWindDirection;
+@property (nonatomic, readonly) float boatRudder;
+@property (nonatomic, readonly) float boatSheet;
 
 @end

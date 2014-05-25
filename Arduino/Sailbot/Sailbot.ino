@@ -12,8 +12,7 @@ RTFusionRTQF fusion;                                  // the fusion object
 RTIMUSettings settings;                               // the settings object
 
 enum SBTSailbotModelHeader {
-  SBTSailbotModelHeaderState = 1,
-  SBTSailbotModelHeaderBoatHeading,
+  SBTSailbotModelHeaderBoatState = 1,
   SBTSailbotModelHeaderAutomaticControl,
   SBTSailbotModelHeaderManualControl,
   SBTSailbotModelHeaderConfiguration,
@@ -42,6 +41,8 @@ int failedIMUReadCount;
 bool calibratedWind;
 float windDirection;
 float heading;
+float rudder;
+float sheet;
 
 
 Servo tillerServo;
@@ -51,6 +52,7 @@ void setup() {
   Serial.begin(SERIAL_PORT_SPEED);
   Wire.begin();
   remoteState = SBTSailbotModelStateManualControl;
+  windDirection = -1.0;
   calibratedWind = false;
   imu = RTIMU::createIMU(&settings);                        // create the imu object
 
@@ -108,20 +110,25 @@ void loop() {
   // Communicate with remote
   if ((now - lastDataPacketSent) >= DATA_PACKET_SEND_INTERVAL) {
     lastDataPacketSent = now;
-    if (state == SBTSailbotModelStateCalibratingIMU || state == SBTSailbotModelStateNoIMU) {
-      char buffer[2];
-      buffer[0] = SBTSailbotModelHeaderState;
-      buffer[1] = state;
-      RFduinoBLE.send((char*)&buffer, 2);
-    } else {
+    if (state != SBTSailbotModelStateCalibratingIMU && state != SBTSailbotModelStateNoIMU) {
       const RTVector3& vec = fusion.getFusionPose();
-      char buffer[10];
-      buffer[0] = SBTSailbotModelHeaderBoatHeading;
-      buffer[1] = state;
-      heading = vec.z();
-      memcpy(&buffer[2], &heading, sizeof(heading));
-      RFduinoBLE.send((char*)&buffer, sizeof(float) + 2);
+      float rawHeading = vec.z();
+      if (rawHeading < 0)
+        heading = rawHeading + 2 * M_PI;
+      else
+        heading = rawHeading;
     }
+    char buffer[18];
+    buffer[0] = SBTSailbotModelHeaderBoatState;
+    buffer[1] = state;
+    memcpy(&buffer[2], &heading, sizeof(heading));
+    memcpy(&buffer[6], &windDirection, sizeof(heading));
+    memcpy(&buffer[10], &rudder, sizeof(rudder));
+    memcpy(&buffer[14], &sheet, sizeof(sheet));
+
+    RFduinoBLE.send((char*)&buffer, 2 + 4 * sizeof(float));
+    Serial.print("Heading: "); Serial.print(heading);
+    Serial.print(" Wind direction: "); Serial.println(windDirection);
   }
 }
 
@@ -147,10 +154,15 @@ void RFduinoBLE_onReceive(char * data, int len) {
       }
     case SBTSailbotModelHeaderManualControl: {
         remoteState = SBTSailbotModelStateManualControl;
-        int rudder;
-        memcpy(&rudder, &data[1], sizeof(rudder));
-        int sheet;
-        memcpy(&sheet, &data[1 + 4], sizeof(sheet));
+        
+        int remoteRudder;
+        memcpy(&remoteRudder, &data[1], sizeof(remoteRudder));
+        rudder = (float)remoteRudder;
+        
+        int remoteSheet;
+        memcpy(&remoteSheet, &data[1 + 4], sizeof(remoteSheet));
+        sheet = (float)remoteSheet;
+        
         tillerServo.write(((rudder / 10.0) + M_PI / 2.0) * 180.0 / M_PI);
         sheetServo.write((sheet / 10.0) * 60 + 90);
         Serial.print("Manual control: "); Serial.println(rudder);

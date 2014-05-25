@@ -127,27 +127,39 @@ static SBTSailbotModel *_shared = nil;
 - (void)didReceiveData:(NSData *)data {
     if ([data length] < 1)
         return;
-
     const char *bytes = [data bytes];
     enum SBTSailbotModelHeader command = bytes[0];
-    NSLog(@"%@ (%tu bytes)", [self _stringFromHeader:bytes[1]], [data length]);
+    if (command != SBTSailbotModelHeaderBoatState)
+        return;
     
+    NSLog(@"%@ (%tu bytes)", [self _stringFromHeader:bytes[1]], [data length]);
     [self _setState:bytes[1]];
-    switch (command) {
-        case SBTSailbotModelHeaderBoatHeading: {
-            float *ptr = (float *)&bytes[2];
-            float heading = *ptr;
-            NSLog(@"heading %f", heading * 180.0 / M_PI);
-            if (_headingUpdateBlock)
-                _headingUpdateBlock(heading);
-            break;
-        }
-            //        case SBTSailbotModelHeaderCalibratingIMU: {
-            //            [self _setState:SBTSailbotModelStateCalibratingIMU];
-            //        }
-        default:
-            break;
+    
+    // Boat heading
+    float *ptr = (float *)&bytes[2];
+    _boatHeading = *ptr;
+    if (_headingUpdateBlock)
+        _headingUpdateBlock(_boatHeading);
+    NSLog(@"Boat heading: %f", _boatHeading * 180.0 / M_PI);
+    
+    // Boat wind direction
+    ptr = (float *)&bytes[6];
+    _boatWindDirection = *ptr;
+    if (_boatWindDirection < 0) {
+        NSLog(@"No wind direction");
+    } else {
+        NSLog(@"Boat wind direction: %f", _boatWindDirection * 180.0 / M_PI);
     }
+    
+    // Boat rudder
+    ptr = (float *)&bytes[10];
+    _boatRudder = *ptr;
+    NSLog(@"Boat rudder: %f", _boatRudder);
+    
+    // Boat sheet
+    ptr = (float *)&bytes[14];
+    _boatSheet = *ptr;
+    NSLog(@"Boat sheet: %f", _boatSheet);
 }
 
 
