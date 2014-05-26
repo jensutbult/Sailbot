@@ -33,6 +33,8 @@ enum SBTSailbotModelState {
 #define DATA_PACKET_SEND_INTERVAL  500
 #define  SERIAL_PORT_SPEED  9600
 
+#define MAX_RUDDER 10.0
+
 unsigned long lastDataPacketSent;
 
 char state;
@@ -41,6 +43,7 @@ int failedIMUReadCount;
 bool calibratedWind;
 float windDirection;
 float heading;
+float automaticHeading;
 float rudder;
 float sheet;
 float compassOffset;
@@ -79,6 +82,17 @@ void setup() {
   lastDataPacketSent = millis();
 }
 
+void setRudder(float newAngle) {
+  if (newAngle < 0 && newAngle < -MAX_RUDDER) {
+    newAngle = -MAX_RUDDER;
+  } else if (newAngle > 0 && newAngle > MAX_RUDDER) {
+    newAngle = MAX_RUDDER;
+  }
+  rudder = newAngle;
+
+  tillerServo.write(((rudder / MAX_RUDDER) + M_PI / 2.0) * 180.0 / M_PI);
+}
+
 void loop() {
   unsigned long now = millis();
 
@@ -91,13 +105,14 @@ void loop() {
       state = SBTSailbotModelStateCalibratingIMU;
     } else if (!calibratedWind) {
       state = SBTSailbotModelStateWindNotCalibrated;
-    } else {
+    } else if (state != SBTSailbotModelStateRecoveryMode) {
       state = remoteState;
     }
 
     // Update rudder and sheet
     if (state == SBTSailbotModelStateAutomaticControl) {
-
+      float angle = atan2(sin(heading - automaticHeading), cos(heading - automaticHeading));
+      setRudder(40.0 * angle / M_PI);
     } else if (state == SBTSailbotModelStateRecoveryMode) {
 
     }
@@ -119,13 +134,8 @@ void loop() {
         heading = rawHeading + 2 * M_PI;
       else
         heading = rawHeading;
-      // Apply compass offset
-      if (heading > compassOffset)
-        heading -= compassOffset;
-      else
-        heading += compassOffset;
     }
-    char buffer[10];
+    char buffer[18];
     buffer[0] = SBTSailbotModelHeaderBoatState;
     buffer[1] = state;
     memcpy(&buffer[2], &heading, sizeof(heading));
@@ -135,15 +145,18 @@ void loop() {
 
     RFduinoBLE.send((char*)&buffer, 2 + 4 * sizeof(float));
     Serial.print("Heading: "); Serial.print(heading);
+    Serial.print(" Automatic heading: "); Serial.print(automaticHeading);
     Serial.print(" Wind direction: "); Serial.println(windDirection);
   }
 }
 
 void RFduinoBLE_onConnect() {
+  state = SBTSailbotModelStateConnected;
   Serial.println("Bluetooth connect");
 }
 
 void RFduinoBLE_onDisconnect() {
+  state = SBTSailbotModelStateRecoveryMode;
   Serial.println("Bluetooth disconnect");
 }
 
@@ -154,9 +167,10 @@ void RFduinoBLE_onReceive(char * data, int len) {
   switch (command) {
     case SBTSailbotModelHeaderAutomaticControl: {
         remoteState = SBTSailbotModelStateAutomaticControl;
-        int heading;
-        memcpy(&heading, &data[1], sizeof(heading));
-        Serial.print("Automatic heading: "); Serial.println(heading);
+        int newHeading;
+        memcpy(&newHeading, &data[1], sizeof(newHeading));
+        automaticHeading = ((float)newHeading) * M_PI / 180.0;
+        Serial.print("Automatic heading: "); Serial.println(automaticHeading);
         break;
       }
     case SBTSailbotModelHeaderManualControl: {
@@ -165,12 +179,12 @@ void RFduinoBLE_onReceive(char * data, int len) {
         int remoteRudder;
         memcpy(&remoteRudder, &data[1], sizeof(remoteRudder));
         rudder = (float)remoteRudder;
+        setRudder(rudder);
 
         int remoteSheet;
         memcpy(&remoteSheet, &data[1 + 4], sizeof(remoteSheet));
         sheet = (float)remoteSheet;
 
-        tillerServo.write(((rudder / 10.0) + M_PI / 2.0) * 180.0 / M_PI);
         sheetServo.write((sheet / 10.0) * 60 + 90);
         Serial.print("Manual control: "); Serial.println(rudder);
         break;
