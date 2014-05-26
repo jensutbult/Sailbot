@@ -2,7 +2,6 @@
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="5056" systemVersion="13C1021" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="vXZ-lx-hvc">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3733"/>
-        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
     </dependencies>
     <scenes>
         <!--View Controller-->
@@ -26,23 +25,19 @@
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     </imageView>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="boat" translatesAutoresizingMaskIntoConstraints="NO" id="qGe-k7-qqn">
-                                        <rect key="frame" x="85" y="135" width="150" height="50"/>
+                                        <rect key="frame" x="10" y="10" width="300" height="300"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <constraints>
-                                            <constraint firstAttribute="width" secondItem="qGe-k7-qqn" secondAttribute="height" multiplier="3:1" id="ZRs-Qa-jOr"/>
-                                        </constraints>
                                     </imageView>
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="0.0" colorSpace="custom" customColorSpace="calibratedWhite"/>
                                 <constraints>
-                                    <constraint firstAttribute="trailing" secondItem="qGe-k7-qqn" secondAttribute="trailing" constant="85" id="AZf-OP-cre"/>
-                                    <constraint firstAttribute="centerY" secondItem="qGe-k7-qqn" secondAttribute="centerY" id="FOM-YK-YLk"/>
+                                    <constraint firstAttribute="centerY" secondItem="qGe-k7-qqn" secondAttribute="centerY" id="6Jf-JD-emo"/>
                                     <constraint firstAttribute="trailing" secondItem="Vd2-Y7-l9Y" secondAttribute="trailing" constant="10" id="G55-Ld-Asx"/>
                                     <constraint firstAttribute="width" constant="320" id="Nlc-MY-5CV"/>
                                     <constraint firstItem="Vd2-Y7-l9Y" firstAttribute="top" secondItem="yhG-h3-dby" secondAttribute="top" constant="10" id="Ykq-S4-hpA"/>
                                     <constraint firstAttribute="bottom" secondItem="Vd2-Y7-l9Y" secondAttribute="bottom" constant="10" id="ZB1-Or-1Qc"/>
                                     <constraint firstItem="Vd2-Y7-l9Y" firstAttribute="leading" secondItem="yhG-h3-dby" secondAttribute="leading" constant="10" id="e3U-dg-fFg"/>
-                                    <constraint firstItem="qGe-k7-qqn" firstAttribute="leading" secondItem="yhG-h3-dby" secondAttribute="leading" constant="85" id="inp-0l-OEO"/>
+                                    <constraint firstAttribute="centerX" secondItem="qGe-k7-qqn" secondAttribute="centerX" id="r1g-du-fMo"/>
                                     <constraint firstAttribute="height" constant="320" id="uSq-fs-ZcO"/>
                                 </constraints>
                             </view>
@@ -101,7 +96,7 @@
         </scene>
     </scenes>
     <resources>
-        <image name="boat" width="150" height="50"/>
+        <image name="boat" width="300" height="300"/>
         <image name="compass-rose" width="300" height="300"/>
         <image name="heading" width="40" height="40"/>
         <image name="sheet-control" width="92" height="27"/>
