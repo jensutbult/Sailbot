@@ -13,14 +13,14 @@
 @implementation SBTCompassModel {
     CLLocationManager *_locationManager;
     CGFloat _lastHeading;
-    HeadingUpdateBlock _headingUpdateBlock;
+    AngleUpdateBlock _headingUpdateBlock;
     CGFloat _headings[LENGTH];
     int _position;
     int _size;
     CGPoint _vector;
 }
 
-- (id)initWithHeadingUpdateBlock:(HeadingUpdateBlock)block {
+- (id)initWithHeadingUpdateBlock:(AngleUpdateBlock)block {
     self = [super init];
     if (self) {
         if ([CLLocationManager headingAvailable]) {

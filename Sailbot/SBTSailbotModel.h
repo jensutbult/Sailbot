@@ -38,7 +38,7 @@ extern NSString *const SBTSailbotModelStateDidChange;
 // send - sheet value
 
 
-typedef void (^HeadingUpdateBlock)(CGFloat heading);
+typedef void (^AngleUpdateBlock)(CGFloat heading);
 
 @interface SBTSailbotModel : NSObject <SBTConnectionManagerDelegate>
 
@@ -48,7 +48,8 @@ typedef void (^HeadingUpdateBlock)(CGFloat heading);
 - (void)sendAutomaticControlData;
 
 @property (nonatomic, readonly) enum SBTSailbotModelState state;
-@property (nonatomic, copy) HeadingUpdateBlock headingUpdateBlock;
+@property (nonatomic, copy) AngleUpdateBlock headingUpdateBlock;
+@property (nonatomic, copy) AngleUpdateBlock windUpdateBlock;
 @property (nonatomic, assign) float automaticHeading;
 @property (nonatomic, assign) float manualSheetControl;
 @property (nonatomic, assign) float manualSteeringControl;

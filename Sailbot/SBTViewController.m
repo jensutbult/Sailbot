@@ -16,6 +16,7 @@
 @interface SBTViewController ()
 
 @property (nonatomic, weak) IBOutlet UIImageView *boatImageView;
+@property (nonatomic, assign) CGFloat windDirection;
 
 @end
 
@@ -23,11 +24,14 @@
     SBTSailbotModel *_sailbot;
     SBTCompassModel *_compass;
     __weak IBOutlet UIImageView *_headingImageView;
+    __weak IBOutlet UIImageView *_windImageView;
     __weak IBOutlet UIView *_compassView;
     __weak IBOutlet NSLayoutConstraint *_compassWidthConstraint;
     __weak IBOutlet NSLayoutConstraint *_compassHeightConstraint;
     __weak IBOutlet NSLayoutConstraint *_headingHorizontalConstraint;
     __weak IBOutlet NSLayoutConstraint *_headingVerticalConstraint;
+    __weak IBOutlet NSLayoutConstraint *_windHorizontalConstraint;
+    __weak IBOutlet NSLayoutConstraint *_windVerticalConstraint;
     __weak IBOutlet UIImageView *_sheetControlImageView;
     __weak IBOutlet NSLayoutConstraint *_sheetControlConstraint;
     __weak IBOutlet UIImageView *_sheetScaleImageView;
@@ -37,6 +41,8 @@
     CGFloat _compassViewSize;
     CGFloat _headingOffset;
     CGFloat _heading;
+    CGFloat _windDirection;
+    CGFloat _windOffset;
     CGFloat _compassHeading;
     CGFloat _compassCompensation;
     CGFloat _enabledControlAlpha;
@@ -64,6 +70,7 @@
             _compassHeading = heading;
             _compassView.transform = CGAffineTransformMakeRotation([self _compensatedCompass]);
             [self _rotateHeading:nil];
+            [self _rotateWind:nil];
         }];
     }];
     _sailbot = [SBTSailbotModel shared];
@@ -74,7 +81,13 @@
         }];
     };
     
+    _sailbot.windUpdateBlock = ^(CGFloat direction) {
+        __self.windDirection = direction;
+        [__self _rotateWind:nil];
+    };
+    
     _headingOffset = _headingHorizontalConstraint.constant;
+    _windOffset = _windHorizontalConstraint.constant;
     _compassViewSize = _compassHeightConstraint.constant;
     
     SBTOneFingerRotationGestureRecognizer *rotationGesture = [[SBTOneFingerRotationGestureRecognizer alloc] initWithTarget:self action:@selector(_rotateHeading:)];
@@ -149,10 +162,24 @@
         _heading += 2 * M_PI;
     if (_heading > 2 * M_PI)
         _heading -= 2 * M_PI;
-    
-    [SBTSailbotModel shared].automaticHeading = _heading;
+    if (rotationGesture)
+        [SBTSailbotModel shared].automaticHeading = _heading;
     _headingVerticalConstraint.constant = sinf(_heading + _compassHeading) * _headingOffset;
     _headingHorizontalConstraint.constant = cosf(_heading + _compassHeading) * _headingOffset;
+}
+
+- (void)_rotateWind:(SBTOneFingerRotationGestureRecognizer *)rotationGesture {
+    _windDirection += rotationGesture ? rotationGesture.rotation : 0;
+    if (_windDirection < 0)
+        _windDirection += 2 * M_PI;
+    if (_windDirection > 2 * M_PI)
+        _windDirection -= 2 * M_PI;
+    if (rotationGesture)
+        //        [SBTSailbotModel shared].windDirection = _windDirection;
+    _windVerticalConstraint.constant = sinf(_windDirection + _compassHeading) * _windOffset;
+    _windHorizontalConstraint.constant = cosf(_windDirection + _compassHeading) * _windOffset;
+    
+    _windImageView.transform = CGAffineTransformMakeRotation(_windDirection + _compassHeading);
 }
 
 - (void)_manualSteering:(UIPanGestureRecognizer *)panGesture {
@@ -211,6 +238,7 @@
         [[SBTSailbotModel shared] sendManualControlData];
         [UIView animateWithDuration:0.3 animations:^{
             _headingImageView.alpha = 0;
+            _windImageView.alpha = 0;
         } completion:^(BOOL finished) {
             [UIView animateWithDuration:0.3 animations:^{
                 _compassHeightConstraint.constant = 250;
@@ -241,6 +269,7 @@
             } completion:^(BOOL finished) {
                 [UIView animateWithDuration:0.3 animations:^{
                     _headingImageView.alpha = _enabledControlAlpha;
+                    _windImageView.alpha = _enabledControlAlpha;
                 }];
             }];
         }];

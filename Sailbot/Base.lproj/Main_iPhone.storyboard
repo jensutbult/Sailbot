@@ -42,7 +42,7 @@
                                 </constraints>
                             </view>
                             <imageView alpha="0.29999999999999999" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="heading" translatesAutoresizingMaskIntoConstraints="NO" id="x50-TP-khQ">
-                                <rect key="frame" x="0.0" y="264" width="40" height="40"/>
+                                <rect key="frame" x="20" y="264" width="40" height="40"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </imageView>
                             <imageView alpha="0.0" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="sheet-control" translatesAutoresizingMaskIntoConstraints="NO" id="iA2-b4-QQA">
@@ -57,13 +57,19 @@
                                 <rect key="frame" x="315" y="164" width="31" height="449"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </imageView>
+                            <imageView alpha="0.29999999999999999" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="wind-arrow" translatesAutoresizingMaskIntoConstraints="NO" id="M0X-5P-iEz">
+                                <rect key="frame" x="-10" y="264" width="40" height="40"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </imageView>
                         </subviews>
                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
                             <constraint firstAttribute="centerY" secondItem="h5X-Hk-elW" secondAttribute="centerY" constant="-105" id="Hcu-uy-lG6"/>
-                            <constraint firstAttribute="centerX" secondItem="x50-TP-khQ" secondAttribute="centerX" constant="140" id="Itr-j6-wsV"/>
+                            <constraint firstAttribute="centerX" secondItem="x50-TP-khQ" secondAttribute="centerX" constant="120" id="Itr-j6-wsV"/>
                             <constraint firstAttribute="centerX" secondItem="Awh-vc-dNp" secondAttribute="centerX" constant="195" id="MXw-8r-Nwj"/>
+                            <constraint firstAttribute="centerY" secondItem="M0X-5P-iEz" secondAttribute="centerY" id="Ron-sr-IGr"/>
                             <constraint firstAttribute="centerY" secondItem="yhG-h3-dby" secondAttribute="centerY" id="WE9-VU-BeY"/>
+                            <constraint firstAttribute="centerX" secondItem="M0X-5P-iEz" secondAttribute="centerX" constant="150" id="aUO-lr-Xqz"/>
                             <constraint firstAttribute="centerX" secondItem="h5X-Hk-elW" secondAttribute="centerX" constant="-170" id="dEP-Aq-MOD"/>
                             <constraint firstAttribute="centerY" secondItem="Awh-vc-dNp" secondAttribute="centerY" id="geS-Re-Imd"/>
                             <constraint firstAttribute="centerX" secondItem="yhG-h3-dby" secondAttribute="centerX" id="mAW-Kb-z5m"/>
@@ -73,7 +79,6 @@
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="_boatImageView" destination="qGe-k7-qqn" id="DqX-yV-iPe"/>
                         <outlet property="_compassHeightConstraint" destination="uSq-fs-ZcO" id="GEv-oG-8KS"/>
                         <outlet property="_compassView" destination="yhG-h3-dby" id="Qrw-C6-E37"/>
                         <outlet property="_compassWidthConstraint" destination="Nlc-MY-5CV" id="G57-db-IrZ"/>
@@ -84,11 +89,15 @@
                         <outlet property="_sheetControlImageView" destination="iA2-b4-QQA" id="3W5-Sr-3if"/>
                         <outlet property="_sheetScaleImageView" destination="Awh-vc-dNp" id="wdM-rn-g0F"/>
                         <outlet property="_tillerImageView" destination="h5X-Hk-elW" id="Gnl-SX-6ij"/>
+                        <outlet property="_windHorizontalConstraint" destination="aUO-lr-Xqz" id="i6O-fi-jYE"/>
+                        <outlet property="_windImageView" destination="M0X-5P-iEz" id="JoB-Hn-DZK"/>
+                        <outlet property="_windVerticalConstraint" destination="Ron-sr-IGr" id="0Tm-GS-LuO"/>
                         <outlet property="boatImageView" destination="qGe-k7-qqn" id="auS-xQ-LAs"/>
                         <outletCollection property="_controlImageViews" destination="h5X-Hk-elW" id="lgt-E0-p8Y"/>
                         <outletCollection property="_controlImageViews" destination="iA2-b4-QQA" id="xNq-6i-Geu"/>
                         <outletCollection property="_controlImageViews" destination="Awh-vc-dNp" id="swQ-tE-gl8"/>
                         <outletCollection property="_controlImageViews" destination="x50-TP-khQ" id="HNQ-g2-9w1"/>
+                        <outletCollection property="_controlImageViews" destination="M0X-5P-iEz" id="xLU-Ph-PSE"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
@@ -102,6 +111,7 @@
         <image name="sheet-control" width="92" height="27"/>
         <image name="sheet-scale" width="26" height="239"/>
         <image name="tiller" width="31" height="449"/>
+        <image name="wind-arrow" width="40" height="40"/>
     </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>

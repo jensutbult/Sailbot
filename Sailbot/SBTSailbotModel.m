@@ -148,6 +148,8 @@ static SBTSailbotModel *_shared = nil;
     if (_boatWindDirection < 0) {
         NSLog(@"No wind direction");
     } else {
+        if (_windUpdateBlock)
+            _windUpdateBlock(_boatWindDirection);
         NSLog(@"Boat wind direction: %f", _boatWindDirection * 180.0 / M_PI);
     }
     

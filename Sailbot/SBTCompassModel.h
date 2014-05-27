@@ -9,11 +9,11 @@
 #import <Foundation/Foundation.h>
 #import <CoreLocation/CoreLocation.h>
 
-typedef void (^HeadingUpdateBlock)(CGFloat heading);
+typedef void (^AngleUpdateBlock)(CGFloat angle);
 
 @interface SBTCompassModel : NSObject <CLLocationManagerDelegate>
 
-- (id)initWithHeadingUpdateBlock:(HeadingUpdateBlock)block;
+- (id)initWithHeadingUpdateBlock:(AngleUpdateBlock)block;
 - (CGFloat)filteredAverage;
 
 @end
