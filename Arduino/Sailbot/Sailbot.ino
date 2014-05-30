@@ -36,7 +36,8 @@ enum SBTSailbotModelState {
 #define MAX_RUDDER 10.0
 
 unsigned long lastDataPacketSent;
-unsigned long timeOnCurrentTack;
+unsigned long timeOnTackSequence;
+unsigned long lastAutomaticUpdate;
 
 char state;
 char remoteState;
@@ -48,7 +49,7 @@ float automaticHeading;
 float rudder;
 float sheet;
 float tackAngle;
-float tackTime;
+unsigned long tackTime;
 
 Servo tillerServo;
 Servo sheetServo;
@@ -59,6 +60,7 @@ void setup() {
   remoteState = SBTSailbotModelStateManualControl;
   windDirection = -1.0;
   tackAngle = 90.0 * M_PI / 180.0;
+  tackTime = 20.0 * 1000.0; // 20 seconds
   calibratedWind = false;
   imu = RTIMU::createIMU(&settings);                        // create the imu object
 
@@ -82,6 +84,7 @@ void setup() {
   RFduinoBLE.begin();
 
   lastDataPacketSent = millis();
+  lastAutomaticUpdate = millis();
 }
 
 void setRudder(float newAngle) {
@@ -116,15 +119,20 @@ void loop() {
 
     // Update rudder and sheet
     if (state == SBTSailbotModelStateAutomaticControl) {
+      timeOnTackSequence += now - lastAutomaticUpdate;
+      if (timeOnTackSequence > tackTime * 2)
+        timeOnTackSequence = 0;
       float rudderAngle;
       float angleToWind = angleSubtractf(windDirection, automaticHeading);
       if (abs(angleToWind) < tackAngle / 2.0) {
         float tack = angleToWind > 0 ? tackAngle / 2.0 : -tackAngle / 2.0;
+        if (timeOnTackSequence > tackTime)
+          tack = -tack;
         rudderAngle = angleSubtractf(angleSubtractf(windDirection, tack), heading);
-        Serial.print("Angle towards wind: "); Serial.println(angleToWind * 180.0 / M_PI);
       } else {
         rudderAngle = angleSubtractf(automaticHeading, heading);
       }
+      lastAutomaticUpdate = now;
       setRudder(40.0 * rudderAngle / M_PI);
 
     } else if (state == SBTSailbotModelStateRecoveryMode) {
@@ -160,9 +168,13 @@ void loop() {
     memcpy(&buffer[14], &sheet, sizeof(sheet));
 
     RFduinoBLE.send((char*)&buffer, 2 + 4 * sizeof(float));
-    Serial.print("Heading: "); Serial.print(heading);
-    Serial.print(" Automatic heading: "); Serial.print(automaticHeading);
-    Serial.print(" Wind direction: "); Serial.println(windDirection);
+    Serial.print("heading: "); Serial.print(heading);
+    Serial.print(" automaticHeading: "); Serial.print(automaticHeading);
+    Serial.print(" windDirection: "); Serial.print(windDirection);
+    Serial.print(" rudder: "); Serial.print(rudder);
+    Serial.print(" sheet: "); Serial.print(sheet);
+    Serial.print(" timeOnTackSequence: "); Serial.print(timeOnTackSequence);
+    Serial.print(" tackTime: "); Serial.println(tackTime);
   }
 }
 
@@ -184,6 +196,8 @@ void RFduinoBLE_onReceive(char * data, int len) {
     case SBTSailbotModelHeaderAutomaticControl: {
         remoteState = SBTSailbotModelStateAutomaticControl;
         int newHeading;
+        timeOnTackSequence = 0; // reset time on current tack
+        lastAutomaticUpdate = millis();
         memcpy(&newHeading, &data[1], sizeof(newHeading));
         automaticHeading = ((float)newHeading) * M_PI / 180.0;
         Serial.print("Automatic heading: "); Serial.println(automaticHeading);
@@ -223,6 +237,6 @@ void RFduinoBLE_onReceive(char * data, int len) {
 }
 
 float angleSubtractf(float angleOne, float angleTwo) {
-    return atan2f(sinf(angleOne - angleTwo), cosf(angleOne - angleTwo));
+  return atan2f(sinf(angleOne - angleTwo), cosf(angleOne - angleTwo));
 }
 
