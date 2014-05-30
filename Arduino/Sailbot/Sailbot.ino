@@ -36,6 +36,7 @@ enum SBTSailbotModelState {
 #define MAX_RUDDER 10.0
 
 unsigned long lastDataPacketSent;
+unsigned long timeOnCurrentTack;
 
 char state;
 char remoteState;
@@ -46,7 +47,8 @@ float heading;
 float automaticHeading;
 float rudder;
 float sheet;
-float compassOffset;
+float tackAngle;
+float tackTime;
 
 Servo tillerServo;
 Servo sheetServo;
@@ -56,7 +58,7 @@ void setup() {
   Wire.begin();
   remoteState = SBTSailbotModelStateManualControl;
   windDirection = -1.0;
-  compassOffset = M_PI;
+  tackAngle = 90.0 * M_PI / 180.0;
   calibratedWind = false;
   imu = RTIMU::createIMU(&settings);                        // create the imu object
 
@@ -114,8 +116,17 @@ void loop() {
 
     // Update rudder and sheet
     if (state == SBTSailbotModelStateAutomaticControl) {
-      float angle = atan2(sin(heading - automaticHeading), cos(heading - automaticHeading));
-      setRudder(40.0 * angle / M_PI);
+      float rudderAngle;
+      float angleToWind = angleSubtractf(windDirection, automaticHeading);
+      if (abs(angleToWind) < tackAngle / 2.0) {
+        float tack = angleToWind > 0 ? tackAngle / 2.0 : -tackAngle / 2.0;
+        rudderAngle = angleSubtractf(angleSubtractf(windDirection, tack), heading);
+        Serial.print("Angle towards wind: "); Serial.println(angleToWind * 180.0 / M_PI);
+      } else {
+        rudderAngle = angleSubtractf(automaticHeading, heading);
+      }
+      setRudder(40.0 * rudderAngle / M_PI);
+
     } else if (state == SBTSailbotModelStateRecoveryMode) {
 
     }
@@ -200,7 +211,7 @@ void RFduinoBLE_onReceive(char * data, int len) {
         if (newWindDirection < 0) {
           windDirection = heading;
         } else {
-          windDirection = ((float)newWindDirection) * M_PI / 180.0;
+          windDirection = ((float)newWindDirection)  * M_PI / 180.0;
         }
         calibratedWind = true;
         state = SBTSailbotModelStateManualControl;
@@ -209,5 +220,9 @@ void RFduinoBLE_onReceive(char * data, int len) {
     default:
       break;
   }
+}
+
+float angleSubtractf(float angleOne, float angleTwo) {
+    return atan2f(sinf(angleOne - angleTwo), cosf(angleOne - angleTwo));
 }
 
