@@ -12,6 +12,7 @@
 #import "SBTOneFingerRotationGestureRecognizer.h"
 #import "UIView+SBTShortcuts.h"
 #import <AudioToolbox/AudioToolbox.h>
+#import "SBTMath.h"
 
 @interface SBTViewController ()
 
@@ -60,6 +61,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    _windDirection = -1;
     [self _updateControlAlpha:0.3];
     [[NSNotificationCenter defaultCenter] addObserverForName:SBTSailbotModelStateDidChange object:[SBTSailbotModel shared] queue:nil usingBlock:^(NSNotification *note) {
         [self _sailbotStateDidChange:note];
@@ -70,7 +72,7 @@
             _compassHeading = heading;
             _compassView.transform = CGAffineTransformMakeRotation([self _compensatedCompass]);
             [self _rotateHeading:nil];
-            [self _rotateWind:nil];
+            [self _updateWindArrow];
         }];
     }];
     _sailbot = [SBTSailbotModel shared];
@@ -82,8 +84,10 @@
     };
     
     _sailbot.windUpdateBlock = ^(CGFloat direction) {
-        __self.windDirection = direction;
-        [__self _rotateWind:nil];
+        if (__self.windDirection < 0) {
+            __self.windDirection = direction;
+            [__self _updateWindArrow];
+        }
     };
     
     _headingOffset = _headingHorizontalConstraint.constant;
@@ -100,6 +104,10 @@
     UIPanGestureRecognizer *sheetControlGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(_manualSheet:)];
     sheetControlGesture.maximumNumberOfTouches = 1;
     [_sheetControlImageView addGestureRecognizer:sheetControlGesture];
+    
+    SBTOneFingerRotationGestureRecognizer *windDirectionHoldGesture = [[SBTOneFingerRotationGestureRecognizer alloc] initWithTarget:self action:@selector(_rotateWind:)];
+    
+    [_windImageView addGestureRecognizer:windDirectionHoldGesture];
     
     _boatImageView.layer.anchorPoint = CGPointMake(0.5, 0.5);
 }
@@ -145,7 +153,7 @@
 }
 
 - (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
-    [[SBTSailbotModel shared] calibrateWind:-1];
+    [[SBTSailbotModel shared] sendCalibrateWind:-1];
     
     UIInterfaceOrientation orientation = [self interfaceOrientation];
     if (orientation == UIDeviceOrientationPortrait) {
@@ -153,15 +161,11 @@
     } else {
         [[SBTSailbotModel shared] sendManualControlData];
     }
-
 }
 
 - (void)_rotateHeading:(SBTOneFingerRotationGestureRecognizer *)rotationGesture {
     _heading += rotationGesture ? rotationGesture.rotation : 0;
-    if (_heading < 0)
-        _heading += 2 * M_PI;
-    if (_heading > 2 * M_PI)
-        _heading -= 2 * M_PI;
+    _heading = fixAnglef(_heading);
     if (rotationGesture)
         [SBTSailbotModel shared].automaticHeading = _heading;
     _headingVerticalConstraint.constant = sinf(_heading + _compassHeading) * _headingOffset;
@@ -170,15 +174,16 @@
 
 - (void)_rotateWind:(SBTOneFingerRotationGestureRecognizer *)rotationGesture {
     _windDirection += rotationGesture ? rotationGesture.rotation : 0;
-    if (_windDirection < 0)
-        _windDirection += 2 * M_PI;
-    if (_windDirection > 2 * M_PI)
-        _windDirection -= 2 * M_PI;
-    if (rotationGesture)
-        //        [SBTSailbotModel shared].windDirection = _windDirection;
+    _windDirection = fixAnglef(_windDirection);
+    if (rotationGesture) {
+        [[SBTSailbotModel shared] sendCalibrateWind:_windDirection];
+    }
+    [self _updateWindArrow];
+}
+
+- (void)_updateWindArrow {
     _windVerticalConstraint.constant = sinf(_windDirection + _compassHeading) * _windOffset;
     _windHorizontalConstraint.constant = cosf(_windDirection + _compassHeading) * _windOffset;
-    
     _windImageView.transform = CGAffineTransformMakeRotation(_windDirection + _compassHeading);
 }
 
@@ -189,21 +194,16 @@
     CGFloat angle = atan2(vector.x, vector.y);
     
     // clamp value at 45 degrees
-    angle = angle > M_PI / 4.0 ? M_PI / 4.0 : angle;
-    angle = angle < -M_PI / 4.0 ? -M_PI / 4.0 : angle;
+    angle = clampf(angle, M_PI / 4.0, -M_PI / 4.0);
     
     _tillerImageView.transform = CGAffineTransformMakeRotation(angle);
-    [SBTSailbotModel shared].manualSteeringControl = angle;
+    [SBTSailbotModel shared].manualSteeringControl = angle / (M_PI / 4);
 }
 
 - (void)_manualSheet:(UIPanGestureRecognizer *)panGesture {
-    CGFloat position = -([panGesture locationInView:self.view].y - self.view.width/2) / 110.0; // - self.view.height/2) ;/// 110.0;
-    position = position > 1 ? 1 : position;
-    position = position < -1 ? -1 : position;
-    
+    CGFloat position = clampf(-([panGesture locationInView:self.view].y - self.view.width/2) / 110.0, 1.0, -1.0);
     [SBTSailbotModel shared].manualSheetControl = position;
     _sheetControlConstraint.constant = position * 110;;
-    
 }
 
 - (void)didReceiveMemoryWarning {
@@ -278,10 +278,7 @@
 
 - (CGFloat)_compensatedCompass {
     CGFloat heading = _compassHeading + _compassCompensation;
-    if (heading < 0)
-        heading += 2 * M_PI;
-    if (heading > 2 * M_PI)
-        heading -= 2 * M_PI;
+    heading = fixAnglef(heading);
     return heading;
 }
 

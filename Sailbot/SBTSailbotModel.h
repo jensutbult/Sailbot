@@ -43,7 +43,7 @@ typedef void (^AngleUpdateBlock)(CGFloat heading);
 @interface SBTSailbotModel : NSObject <SBTConnectionManagerDelegate>
 
 + (SBTSailbotModel *)shared;
-- (void)calibrateWind:(int)direction;
+- (void)sendCalibrateWind:(float)direction;
 - (void)sendManualControlData;
 - (void)sendAutomaticControlData;
 
@@ -55,8 +55,8 @@ typedef void (^AngleUpdateBlock)(CGFloat heading);
 @property (nonatomic, assign) float manualSteeringControl;
 
 @property (nonatomic, readonly) float boatHeading;
-@property (nonatomic, readonly) float boatWindDirection;
 @property (nonatomic, readonly) float boatRudder;
 @property (nonatomic, readonly) float boatSheet;
+@property (nonatomic, readonly) float windDirection;
 
 @end

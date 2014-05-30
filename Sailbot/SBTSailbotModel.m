@@ -14,6 +14,7 @@ NSString *const SBTSailbotModelStateDidChange = @"SBTSailbotModelStateDidChange"
     int _backingManualSteeringControl;
     int _backingManualSheetControl;
     int _backingAutomaticHeading;
+    int _lastSentWindDirection;
 }
 
 static SBTSailbotModel *_shared = nil;
@@ -46,18 +47,23 @@ static SBTSailbotModel *_shared = nil;
     }
 }
 
-- (void)calibrateWind:(int)direction {
-    NSLog(@"calibrate wind: %i", direction);
-    char bytes[1 + 4];
-    bytes[0] = SBTSailbotModelHeaderWindDirection;
-    int *ptr = (int *)&bytes[1];
-    *ptr = direction;
-    NSData *data = [NSData dataWithBytes:bytes length:1 + sizeof(int)];
-    [[SBTConnectionManager shared] send:data];
+- (void)sendCalibrateWind:(float)direction {
+    int newWindDirection = (int)(direction * 180.0 / M_PI);
+    if (newWindDirection != _lastSentWindDirection) {
+        _lastSentWindDirection = newWindDirection;
+        char bytes[1 + 4];
+        bytes[0] = SBTSailbotModelHeaderWindDirection;
+        int *ptr = (int *)&bytes[1];
+        *ptr = _lastSentWindDirection\
+        ;
+        NSLog(@"Send calibrate wind: %i", *ptr);
+        NSData *data = [NSData dataWithBytes:bytes length:1 + sizeof(int)];
+        [[SBTConnectionManager shared] send:data];
+    }
 }
 
 - (void)sendManualControlData {
-    NSLog(@"send manual control: %i, %i", _backingManualSteeringControl, _backingManualSheetControl);
+    NSLog(@"Send manual control: %i, %i", _backingManualSteeringControl, _backingManualSheetControl);
     char bytes[1 + 4 + 4];
     bytes[0] = SBTSailbotModelHeaderManualControl;
     int *ptr = (int *)&bytes[1];
@@ -69,7 +75,7 @@ static SBTSailbotModel *_shared = nil;
 }
 
 - (void)sendAutomaticControlData {
-    NSLog(@"send automatic control: %i", _backingAutomaticHeading);
+    NSLog(@"Send automatic control: %i", _backingAutomaticHeading);
     char bytes[1 + 4];
     bytes[0] = SBTSailbotModelHeaderAutomaticControl;
     int *ptr = (int *)&bytes[1];
@@ -86,8 +92,12 @@ static SBTSailbotModel *_shared = nil;
     }
 }
 
+- (float)automaticHeading {
+    return (float)(_backingAutomaticHeading * M_PI / 180.0);
+}
+
 - (float)manualSteeringControl {
-    return (float)(_backingManualSteeringControl * 10);
+    return (float)(_backingManualSteeringControl / 10.0);
 }
 
 - (void)setManualSteeringControl:(float)manualSteeringControl {
@@ -99,7 +109,7 @@ static SBTSailbotModel *_shared = nil;
 }
 
 - (float)manualSheetControl {
-    return (float)(_backingManualSheetControl * 10);
+    return (float)(_backingManualSheetControl / 10.0);
 }
 
 - (void)setManualSheetControl:(float)manualSheetControl {
@@ -144,13 +154,13 @@ static SBTSailbotModel *_shared = nil;
     
     // Boat wind direction
     ptr = (float *)&bytes[6];
-    _boatWindDirection = *ptr;
-    if (_boatWindDirection < 0) {
+    _windDirection = *ptr;
+    if (_windDirection < 0) {
         NSLog(@"No wind direction");
     } else {
         if (_windUpdateBlock)
-            _windUpdateBlock(_boatWindDirection);
-        NSLog(@"Boat wind direction: %f", _boatWindDirection * 180.0 / M_PI);
+            _windUpdateBlock(_windDirection);
+        NSLog(@"Boat wind direction: %f", _windDirection * 180.0 / M_PI);
     }
     
     // Boat rudder
@@ -162,6 +172,8 @@ static SBTSailbotModel *_shared = nil;
     ptr = (float *)&bytes[14];
     _boatSheet = *ptr;
     NSLog(@"Boat sheet: %f", _boatSheet);
+    
+    NSLog(@"==============================");
 }
 
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="5056" systemVersion="13C1021" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="vXZ-lx-hvc">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="5056" systemVersion="13D65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="vXZ-lx-hvc">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3733"/>
     </dependencies>
@@ -41,10 +41,6 @@
                                     <constraint firstAttribute="height" constant="320" id="uSq-fs-ZcO"/>
                                 </constraints>
                             </view>
-                            <imageView alpha="0.29999999999999999" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="heading" translatesAutoresizingMaskIntoConstraints="NO" id="x50-TP-khQ">
-                                <rect key="frame" x="20" y="264" width="40" height="40"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                            </imageView>
                             <imageView alpha="0.0" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="sheet-control" translatesAutoresizingMaskIntoConstraints="NO" id="iA2-b4-QQA">
                                 <rect key="frame" x="-81" y="271" width="92" height="27"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -59,6 +55,10 @@
                             </imageView>
                             <imageView alpha="0.29999999999999999" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="wind-arrow" translatesAutoresizingMaskIntoConstraints="NO" id="M0X-5P-iEz">
                                 <rect key="frame" x="-10" y="264" width="40" height="40"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </imageView>
+                            <imageView alpha="0.29999999999999999" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="heading" translatesAutoresizingMaskIntoConstraints="NO" id="x50-TP-khQ">
+                                <rect key="frame" x="20" y="264" width="40" height="40"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </imageView>
                         </subviews>

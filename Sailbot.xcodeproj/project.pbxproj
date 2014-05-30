@@ -31,6 +31,7 @@
 		B46A0990191ECD5900711D4D /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B46A098F191ECD5900711D4D /* CoreLocation.framework */; };
 		B46A0994191ED4D800711D4D /* SBTCompassModel.m in Sources */ = {isa = PBXBuildFile; fileRef = B46A0993191ED4D800711D4D /* SBTCompassModel.m */; };
 		B46A09971922D22100711D4D /* SBTOneFingerRotationGestureRecognizer.m in Sources */ = {isa = PBXBuildFile; fileRef = B46A09961922D22100711D4D /* SBTOneFingerRotationGestureRecognizer.m */; };
+		B49B84EB1937E15F00D873CC /* SBTMath.c in Sources */ = {isa = PBXBuildFile; fileRef = B49B84EA1937E15F00D873CC /* SBTMath.c */; };
 		B4D93D891925F5C5004F2F60 /* UIView+SBTShortcuts.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D93D881925F5C5004F2F60 /* UIView+SBTShortcuts.m */; };
 		B4F8FE06192AAA480049C449 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4F8FE05192AAA480049C449 /* AudioToolbox.framework */; };
 /* End PBXBuildFile section */
@@ -84,6 +85,8 @@
 		B46A0993191ED4D800711D4D /* SBTCompassModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBTCompassModel.m; sourceTree = "<group>"; };
 		B46A09951922D22100711D4D /* SBTOneFingerRotationGestureRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBTOneFingerRotationGestureRecognizer.h; sourceTree = "<group>"; };
 		B46A09961922D22100711D4D /* SBTOneFingerRotationGestureRecognizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBTOneFingerRotationGestureRecognizer.m; sourceTree = "<group>"; };
+		B49B84E91937DECC00D873CC /* SBTMath.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SBTMath.h; sourceTree = "<group>"; };
+		B49B84EA1937E15F00D873CC /* SBTMath.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SBTMath.c; sourceTree = "<group>"; };
 		B4D93D871925F5C5004F2F60 /* UIView+SBTShortcuts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+SBTShortcuts.h"; sourceTree = "<group>"; };
 		B4D93D881925F5C5004F2F60 /* UIView+SBTShortcuts.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+SBTShortcuts.m"; sourceTree = "<group>"; };
 		B4F8FE05192AAA480049C449 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
@@ -172,6 +175,8 @@
 				B46A09961922D22100711D4D /* SBTOneFingerRotationGestureRecognizer.m */,
 				B4D93D871925F5C5004F2F60 /* UIView+SBTShortcuts.h */,
 				B4D93D881925F5C5004F2F60 /* UIView+SBTShortcuts.m */,
+				B49B84E91937DECC00D873CC /* SBTMath.h */,
+				B49B84EA1937E15F00D873CC /* SBTMath.c */,
 				B46A094C191D81F400711D4D /* Images.xcassets */,
 				B46A0938191D81F400711D4D /* Supporting Files */,
 			);
@@ -327,6 +332,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B49B84EB1937E15F00D873CC /* SBTMath.c in Sources */,
 				B46A0942191D81F400711D4D /* SBTAppDelegate.m in Sources */,
 				B46A0984191D842D00711D4D /* RfduinoManager.m in Sources */,
 				B46A097B191D840C00711D4D /* SBTConnectionManager.m in Sources */,

@@ -94,6 +94,9 @@ void setRudder(float newAngle) {
 }
 
 void loop() {
+  while (RFduinoBLE.radioActive)
+    ;
+
   unsigned long now = millis();
 
   if (imu->IMURead()) {
@@ -117,6 +120,8 @@ void loop() {
 
     }
   } else {
+    Serial.print("Failed IMU: ");
+    Serial.println(imu->IMUName());
     failedIMUReadCount++;
     if (failedIMUReadCount > 50) {
       state = SBTSailbotModelStateNoIMU;
@@ -139,7 +144,7 @@ void loop() {
     buffer[0] = SBTSailbotModelHeaderBoatState;
     buffer[1] = state;
     memcpy(&buffer[2], &heading, sizeof(heading));
-    memcpy(&buffer[6], &windDirection, sizeof(heading));
+    memcpy(&buffer[6], &windDirection, sizeof(windDirection));
     memcpy(&buffer[10], &rudder, sizeof(rudder));
     memcpy(&buffer[14], &sheet, sizeof(sheet));
 
@@ -195,7 +200,7 @@ void RFduinoBLE_onReceive(char * data, int len) {
         if (newWindDirection < 0) {
           windDirection = heading;
         } else {
-          windDirection = (float)newWindDirection;
+          windDirection = ((float)newWindDirection) * M_PI / 180.0;
         }
         calibratedWind = true;
         state = SBTSailbotModelStateManualControl;
