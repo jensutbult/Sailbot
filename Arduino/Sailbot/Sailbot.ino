@@ -33,7 +33,8 @@ enum SBTSailbotModelState {
 #define DATA_PACKET_SEND_INTERVAL  500
 #define  SERIAL_PORT_SPEED  9600
 
-#define MAX_RUDDER 10.0
+#define MAX_MANUAL 20.0
+#define MAX_RUDDER (M_PI/4.0)
 
 unsigned long lastDataPacketSent;
 unsigned long timeOnTackSequence;
@@ -60,7 +61,7 @@ void setup() {
   remoteState = SBTSailbotModelStateManualControl;
   windDirection = -1.0;
   tackAngle = 90.0 * M_PI / 180.0;
-  tackTime = 20.0 * 1000.0; // 20 seconds
+  tackTime = 10.0 * 1000.0; // 20 seconds
   calibratedWind = false;
   imu = RTIMU::createIMU(&settings);                        // create the imu object
 
@@ -87,15 +88,15 @@ void setup() {
   lastAutomaticUpdate = millis();
 }
 
-void setRudder(float newAngle) {
-  if (newAngle < 0 && newAngle < -MAX_RUDDER) {
-    newAngle = -MAX_RUDDER;
-  } else if (newAngle > 0 && newAngle > MAX_RUDDER) {
-    newAngle = MAX_RUDDER;
-  }
-  rudder = newAngle;
+void setRudder(float newRudder) {
+  rudder = newRudder;
+  // Setting the servo to zero does not work so we add 0.4 radians
+  tillerServo.write((rudder * MAX_RUDDER + MAX_RUDDER + 0.4) * 180.0 / M_PI);
+}
 
-  tillerServo.write(((rudder / MAX_RUDDER) + M_PI / 2.0) * 180.0 / M_PI);
+void setSheet(float newSheet) {
+  sheet = newSheet;
+  sheetServo.write(sheet * 60 + 90);
 }
 
 void loop() {
@@ -116,24 +117,43 @@ void loop() {
     } else if (state != SBTSailbotModelStateRecoveryMode) {
       state = remoteState;
     }
+    
+    if (state != SBTSailbotModelStateCalibratingIMU && state != SBTSailbotModelStateNoIMU) {
+      const RTVector3& vec = fusion.getFusionPose();
+      float rawHeading = vec.z();
+      // Convert range to 0 to 2 * M_PI
+      if (rawHeading < 0)
+        heading = rawHeading + 2 * M_PI;
+      else
+        heading = rawHeading;
+    }
 
     // Update rudder and sheet
     if (state == SBTSailbotModelStateAutomaticControl) {
       timeOnTackSequence += now - lastAutomaticUpdate;
       if (timeOnTackSequence > tackTime * 2)
         timeOnTackSequence = 0;
-      float rudderAngle;
+      float errorAngle;
       float angleToWind = angleSubtractf(windDirection, automaticHeading);
       if (abs(angleToWind) < tackAngle / 2.0) {
         float tack = angleToWind > 0 ? tackAngle / 2.0 : -tackAngle / 2.0;
         if (timeOnTackSequence > tackTime)
           tack = -tack;
-        rudderAngle = angleSubtractf(angleSubtractf(windDirection, tack), heading);
+        errorAngle = angleSubtractf(angleSubtractf(windDirection, tack), heading);
       } else {
-        rudderAngle = angleSubtractf(automaticHeading, heading);
+        errorAngle = angleSubtractf(automaticHeading, heading);
       }
       lastAutomaticUpdate = now;
-      setRudder(40.0 * rudderAngle / M_PI);
+      
+      float rudderValue = errorAngle / (M_PI / 8.0); // full rudder at M_PI/8 (cirka 22 degrees)
+      rudderValue = clampf(rudderValue, 1.0, -1.0);
+      setRudder(rudderValue);
+      
+      // sheet
+      float relativeWind = abs(angleSubtractf(windDirection, heading));
+      float newSheet = (relativeWind - tackAngle / 2.0) / (M_PI - tackAngle / 2.0);
+      newSheet = clampf(newSheet, 1.0, 0.0);
+      setSheet(newSheet * 2.0 - 1.0); // sheet is a value between -1 and 1
 
     } else if (state == SBTSailbotModelStateRecoveryMode) {
 
@@ -150,15 +170,7 @@ void loop() {
   // Communicate with remote
   if ((now - lastDataPacketSent) >= DATA_PACKET_SEND_INTERVAL) {
     lastDataPacketSent = now;
-    if (state != SBTSailbotModelStateCalibratingIMU && state != SBTSailbotModelStateNoIMU) {
-      const RTVector3& vec = fusion.getFusionPose();
-      float rawHeading = vec.z();
-      // Convert range to 0 to 2 * M_PI
-      if (rawHeading < 0)
-        heading = rawHeading + 2 * M_PI;
-      else
-        heading = rawHeading;
-    }
+
     char buffer[18];
     buffer[0] = SBTSailbotModelHeaderBoatState;
     buffer[1] = state;
@@ -205,18 +217,14 @@ void RFduinoBLE_onReceive(char * data, int len) {
       }
     case SBTSailbotModelHeaderManualControl: {
         remoteState = SBTSailbotModelStateManualControl;
-
+        // rudder
         int remoteRudder;
         memcpy(&remoteRudder, &data[1], sizeof(remoteRudder));
-        rudder = (float)remoteRudder;
-        setRudder(rudder);
-
+        setRudder(((float)remoteRudder) / MAX_MANUAL);
+        // sheet
         int remoteSheet;
         memcpy(&remoteSheet, &data[1 + 4], sizeof(remoteSheet));
-        sheet = (float)remoteSheet;
-
-        sheetServo.write((sheet / 10.0) * 60 + 90);
-        Serial.print("Manual control: "); Serial.println(rudder);
+        setSheet(((float)remoteSheet) / MAX_MANUAL);
         break;
       }
     case SBTSailbotModelHeaderWindDirection: {
@@ -225,7 +233,7 @@ void RFduinoBLE_onReceive(char * data, int len) {
         if (newWindDirection < 0) {
           windDirection = heading;
         } else {
-          windDirection = ((float)newWindDirection)  * M_PI / 180.0;
+          windDirection = ((float)newWindDirection) * M_PI / 180.0;
         }
         calibratedWind = true;
         state = SBTSailbotModelStateManualControl;
@@ -238,5 +246,9 @@ void RFduinoBLE_onReceive(char * data, int len) {
 
 float angleSubtractf(float angleOne, float angleTwo) {
   return atan2f(sinf(angleOne - angleTwo), cosf(angleOne - angleTwo));
+}
+
+float clampf(float value, float max, float min) {
+    return fmin(fmax(min, value), max);
 }
 

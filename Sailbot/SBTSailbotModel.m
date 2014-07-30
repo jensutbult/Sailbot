@@ -97,11 +97,11 @@ static SBTSailbotModel *_shared = nil;
 }
 
 - (float)manualSteeringControl {
-    return (float)(_backingManualSteeringControl / 10.0);
+    return (float)(_backingManualSteeringControl / 20.0);
 }
 
 - (void)setManualSteeringControl:(float)manualSteeringControl {
-    int newSteering = (int)(manualSteeringControl * 10);
+    int newSteering = (int)(manualSteeringControl * 20);
     if (newSteering != _backingManualSteeringControl) {
         _backingManualSteeringControl = newSteering;
         [self sendManualControlData];
@@ -109,11 +109,11 @@ static SBTSailbotModel *_shared = nil;
 }
 
 - (float)manualSheetControl {
-    return (float)(_backingManualSheetControl / 10.0);
+    return (float)(_backingManualSheetControl / 20.0);
 }
 
 - (void)setManualSheetControl:(float)manualSheetControl {
-    int newSheet = (int)(manualSheetControl * 10);
+    int newSheet = (int)(manualSheetControl * 20);
     if (newSheet != _backingManualSheetControl) {
         _backingManualSheetControl = newSheet;
         [self sendManualControlData];
