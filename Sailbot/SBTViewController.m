@@ -201,9 +201,9 @@
 }
 
 - (void)_manualSheet:(UIPanGestureRecognizer *)panGesture {
-    CGFloat position = clampf(-([panGesture locationInView:self.view].y - self.view.width/2) / 110.0, 1.0, -1.0);
+    CGFloat position = clampf(-([panGesture locationInView:self.view].y - self.view.height/2) / 110.0, 1.0, -1.0);
     [SBTSailbotModel shared].manualSheetControl = position;
-    _sheetControlConstraint.constant = position * 110;;
+    _sheetControlConstraint.constant = position * 110;
 }
 
 - (void)didReceiveMemoryWarning {
