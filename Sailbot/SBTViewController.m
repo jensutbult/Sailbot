@@ -84,6 +84,7 @@
     };
     
     _sailbot.windUpdateBlock = ^(CGFloat direction) {
+        // FIXME: should probably test for windDirection > 0
         if (__self.windDirection < 0) {
             __self.windDirection = direction;
             [__self _updateWindArrow];
@@ -184,7 +185,7 @@
 - (void)_updateWindArrow {
     _windVerticalConstraint.constant = sinf(_windDirection + _compassHeading) * _windOffset;
     _windHorizontalConstraint.constant = cosf(_windDirection + _compassHeading) * _windOffset;
-    _windImageView.transform = CGAffineTransformMakeRotation(_windDirection + _compassHeading);
+    //    _windImageView.transform = CGAffineTransformMakeRotation(_windDirection + _compassHeading);
 }
 
 - (void)_manualSteering:(UIPanGestureRecognizer *)panGesture {
@@ -202,7 +203,7 @@
 
 - (void)_manualSheet:(UIPanGestureRecognizer *)panGesture {
     CGFloat position = clampf(-([panGesture locationInView:self.view].y - self.view.height/2) / 110.0, 1.0, -1.0);
-    [SBTSailbotModel shared].manualSheetControl = position;
+    [SBTSailbotModel shared].manualSheetControl = (position + 1.0) / 2;
     _sheetControlConstraint.constant = position * 110;
 }
 

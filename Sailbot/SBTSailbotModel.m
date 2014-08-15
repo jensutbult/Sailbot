@@ -8,6 +8,7 @@
 
 #import "SBTSailbotModel.h"
 
+static float SBTSailBotModelManualResolution = 40.0;
 NSString *const SBTSailbotModelStateDidChange = @"SBTSailbotModelStateDidChange";
 
 @implementation SBTSailbotModel {
@@ -97,11 +98,12 @@ static SBTSailbotModel *_shared = nil;
 }
 
 - (float)manualSteeringControl {
-    return (float)(_backingManualSteeringControl / 20.0);
+    return (float)(_backingManualSteeringControl / SBTSailBotModelManualResolution / 2.0);
 }
 
 - (void)setManualSteeringControl:(float)manualSteeringControl {
-    int newSteering = (int)(manualSteeringControl * 20);
+    NSAssert(manualSteeringControl >= -1.0 && manualSteeringControl <= 1.0, @"Steering should be between -1.0 and 1.0");
+    int newSteering = (int)(manualSteeringControl * SBTSailBotModelManualResolution / 2.0);
     if (newSteering != _backingManualSteeringControl) {
         _backingManualSteeringControl = newSteering;
         [self sendManualControlData];
@@ -109,11 +111,12 @@ static SBTSailbotModel *_shared = nil;
 }
 
 - (float)manualSheetControl {
-    return (float)(_backingManualSheetControl / 20.0);
+    return (float)(_backingManualSheetControl / SBTSailBotModelManualResolution);
 }
 
 - (void)setManualSheetControl:(float)manualSheetControl {
-    int newSheet = (int)(manualSheetControl * 20);
+    NSAssert(manualSheetControl >= 0 && manualSheetControl <= 1.0, @"Sheet should be between 0.0 and 1.0");
+    int newSheet = (int)(manualSheetControl * SBTSailBotModelManualResolution);
     if (newSheet != _backingManualSheetControl) {
         _backingManualSheetControl = newSheet;
         [self sendManualControlData];
