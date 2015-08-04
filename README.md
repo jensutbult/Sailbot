@@ -11,6 +11,6 @@ Sensor fusion is done with the excellent library https://github.com/richards-tec
 
 ###Current status
 
-This is work in progress. It might never get finished.
+It's done. There's even a video (https://www.youtube.com/watch?v=9QcMFOzyJjk) showcasing it.
 
 ![Breadboard](https://raw.githubusercontent.com/jensutbult/Sailbot/master/Images/breadboard-rfduino-sensor.jpg)
